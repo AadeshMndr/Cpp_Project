@@ -16,7 +16,7 @@ int main() {
     vector<DualNum> Y;
     vector<vector<DualNum>> X;
 
-     for (int i = 0; i < 10; i++){
+     for (int i = 0; i < 100; i++){
         Y.push_back(DualNum("y", std::sin((float)i / 10), 0));
         vector<DualNum> vectX(1, DualNum("x", (float)i / 10, 0));
 
@@ -24,7 +24,7 @@ int main() {
     }
 
     //model
-    ANN_Model model(1, vector<int> {16, 16, 1}, vector<activations> { activations::relu, activations::relu, activations::linear});
+    ANN_Model model(1, vector<int> {7, 7, 1}, vector<activations> { activations::relu, activations::relu, activations::linear});
 
 
     //fitting the model and getting the results
