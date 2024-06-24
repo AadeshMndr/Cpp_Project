@@ -63,6 +63,7 @@
         "sstream": "cpp",
         "xlocbuf": "cpp",
         "xlocmes": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "functional": "cpp"
     }
 }
