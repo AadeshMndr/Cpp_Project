@@ -445,4 +445,37 @@ long double partialDerivative(DualNum (*func)(DualNum), long double at = 1){
     return ((*func)(extX) - (*func)(x)).getDual();
 }
 
+DualNum evaluatePartialDerivative(DualNum (*func)(DualNum), long double at = 1){
+    DualNum x("x", at, 1);
+
+    return ((*func)(x));
+}
+
+double solveUsingNewtonRaphson(DualNum (*func)(DualNum), double initialGuess = 1, int max_no_of_iterations = 10000){
+    
+    long double threshold = 0.00001;
+
+    double x = initialGuess;
+
+    DualNum result("result");
+
+    int iterations = 0;
+
+    do {
+        result = evaluatePartialDerivative(func, x);
+
+        x = x - (result.getReal() / result.getDual());
+
+        iterations++;
+
+        if (iterations > max_no_of_iterations){
+            std::cout << "\nCouldn't converge within given no of iterations." << std::endl; 
+            break;
+        }
+
+    } while (result.getReal() > threshold || result.getReal() < -threshold);
+
+    return x;
+}
+
 #endif
