@@ -609,6 +609,20 @@ ExtendedDualNum operator - (const double num, const ExtendedDualNum& another) {
     return (ExtendedDualNum(num, another.getSize()) -  another);
 }
 
+ExtendedDualNum ExtendedDualNum::operator - (){
+    vector<double> elems(order, 0);
+
+    for (int i = 0; i < order; i++) {
+        elems[i] = (-1) * data[0][i];
+    }
+
+    return ExtendedDual::matrixFiller(elems);
+}
+
+ExtendedDualNum ExtendedDualNum::operator + (){
+    return *this;
+}
+
 ExtendedDualNum ExtendedDualNum::operator / (const ExtendedDualNum& another) const {
     vector<vector<double>> inverse = ExtendedDual::inverseMatrix(another.data);
 
@@ -757,6 +771,10 @@ void ExtendedDualNum::operator ^= (const ExtendedDualNum& another) {
 ExtendedDualNum operator ^ (const double n, const ExtendedDualNum& num) {
     return ExtendedDual::exp(num * std::log(n));
 }
+
+// ExtendedDualNum::operator double(){
+//     return data[0][0];
+// }
 
 
 //default int i = 1;

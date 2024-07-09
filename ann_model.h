@@ -19,200 +19,194 @@ using std::vector;
 
 //multi_threaded matrix multiplication function (matmul) is also made available but not used, instead single_threaded one is used (originalMatMul)
 
-enum class activations { linear, sigmoid, softmax, relu, tanh};
+enum class activations { linear, sigmoid, softmax, relu, tanh };
 enum class lossFunction { mean_squared_error, binary_crossentropy, categorical_crossentropy };
 
+template<typename T = double>
 class ANN_Model {
-    private:
-        vector<DualNum> parameters;
-        int inputs;
-        vector<activations> activationFunctions;
-        vector<int> nodes;
-        vector<double> velocity;
-        double momentum = 0.1;
+private:
+    std::vector<DualNum<T>> parameters;
+    int inputs;
+    std::vector<activations> activationFunctions;
+    std::vector<int> nodes;
+    std::vector<double> velocity;
+    double momentum = 0.1;
 
-    public:
-        ANN_Model(int inputFeatures, vector<int> No_of_Nodes, vector<activations> activationFunctionName) {
-            inputs = inputFeatures;
+public:
+    ANN_Model(int inputFeatures, std::vector<int> No_of_Nodes, std::vector<activations> activationFunctionName) {
+        inputs = inputFeatures;
+        nodes = No_of_Nodes;
+        activationFunctions = activationFunctionName;
 
-            nodes = No_of_Nodes;
-
-            activationFunctions = activationFunctionName;
-
-            std::random_device rd;
-            std::mt19937 gen(rd());
-
-            std::uniform_real_distribution<> distrib(-0.5, 0.5);
-
-            long int no_of_parameters = inputFeatures * No_of_Nodes[0] + No_of_Nodes[0];
-
-
-            for (int i = 0; i < No_of_Nodes.size() - 1; i++){
-                no_of_parameters += No_of_Nodes[i] * No_of_Nodes[i+1] + No_of_Nodes[i+1];
-            }
-
-
-            for (int i = 0; i < no_of_parameters; i++){
-                double random_number = distrib(gen);
-
-                parameters.push_back(DualNum("p:" + std::to_string(i), random_number));
-            }
-
-            velocity = vector<double>(parameters.size(), 0);
+        if (activationFunctions.size() != nodes.size()) {
+            throw std::runtime_error("The number of layers and activation functions do not match.");
         }
 
-        vector<DualNum>& getParameters(){
-            return parameters;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> distrib(-0.5, 0.5);
+
+        long int no_of_parameters = inputFeatures * No_of_Nodes[0] + No_of_Nodes[0];
+
+        for (int i = 0; i < No_of_Nodes.size() - 1; i++) {
+            no_of_parameters += No_of_Nodes[i] * No_of_Nodes[i + 1] + No_of_Nodes[i + 1];
         }
 
-        void setMomentum(double m){
-            momentum = m;
+        for (int i = 0; i < no_of_parameters; i++) {
+            double random_number = distrib(gen);
+            parameters.push_back(DualNum<T>(random_number));
         }
 
-        vector<DualNum> predict(vector<DualNum> X, vector<DualNum> params = {}){
-            if (params.size() == 0){
-                params = parameters;
+        velocity = std::vector<double>(parameters.size(), 0);
+    }
+
+    std::vector<DualNum<T>>& getParameters() {
+        return parameters;
+    }
+
+    void setMomentum(double m) {
+        momentum = m;
+    }
+
+    std::vector<DualNum<T>> predict(std::vector<DualNum<T>> X, std::vector<DualNum<T>> params = {}) {
+        if (params.size() == 0) {
+            params = parameters;
+        }
+
+        if (X.size() != inputs) {
+            throw std::runtime_error("Input size does not match the number of input features.");
+        }
+
+        std::vector<DualNum<T>> inputVect = X;
+        int start = 0;
+
+        for (int i = 0; i < nodes.size(); i++) {
+            std::vector<std::vector<DualNum<T>>> currentWeightMatrix;
+
+            for (int j = 0; j < inputVect.size(); j++) {
+                int end = start + nodes[i];
+                std::vector<DualNum<T>> weightForEachNode(params.begin() + start, params.begin() + end);
+                currentWeightMatrix.push_back(weightForEachNode);
+                start = end;
             }
 
-            if (X.size() != inputs){
-                throw std::runtime_error("The shape of the inputs isn't right!");
+            std::vector<DualNum<T>> currentBiasVect(params.begin() + start, params.begin() + start + nodes[i]);
+            start += nodes[i];
+
+            std::vector<DualNum<T>> tempVect = Dual::originalMatMul(std::vector<std::vector<DualNum<T>>>(1, inputVect), currentWeightMatrix)[0];
+            DualNum<T> expSums(0, 0);
+
+            if (activationFunctions[i] == activations::softmax) {
+                for (int j = 0; j < tempVect.size(); j++) {
+                    expSums += Dual::exp(tempVect[j] + currentBiasVect[j]);
+                }
             }
 
-            vector<DualNum> inputVect = X;
+            for (int j = 0; j < tempVect.size(); j++) {
+                tempVect[j] += currentBiasVect[j];
 
-            int start = 0;
+                if (activationFunctions[i] == activations::relu) {
+                    tempVect[j] = Dual::relu(tempVect[j]);
+                } else if (activationFunctions[i] == activations::sigmoid) {
+                    tempVect[j] = Dual::sigmoid(tempVect[j]);
+                } else if (activationFunctions[i] == activations::tanh) {
+                    tempVect[j] = Dual::tanh(tempVect[j]);
+                } else if (activationFunctions[i] == activations::softmax) {
+                    tempVect[j] = Dual::softmax(tempVect, j, expSums);
+                }
+            }
 
-            for (int i = 0; i < nodes.size(); i++){
-                vector<vector<DualNum>> currentWeightMatrix;
+            inputVect = tempVect;
+        }
 
+        return inputVect;
+    }
 
-                for (int j = 0; j < inputVect.size();  j++){
-                    int end = start + nodes[i];
+    std::vector<std::vector<DualNum<T>>> predictAll(std::vector<std::vector<DualNum<T>>> data, std::vector<DualNum<T>> params = {}) {
+        if (data[0].size() != inputs) {
+            throw std::runtime_error("Input size does not match the number of input features.");
+        }
 
-                    vector<DualNum> weightForEachNode(params.begin() + start, params.begin() + end);
+        std::vector<std::vector<DualNum<T>>> entireOutputs;
 
-                    currentWeightMatrix.push_back(weightForEachNode);
+        for (int i = 0; i < data.size(); i++) {
+            entireOutputs.push_back(predict(data[i], params));
+        }
 
+        return entireOutputs;
+    }
+
+    template <typename Func>
+    void updateParameters(double learning_rate, Func loss, std::vector<DualNum<T>>& newParameters, int start, int end) {
+        for (int i = start; i < end; i++) {
+            double gradient = partialDerivative(loss, parameters, i, parameters[i].getReal());
+            velocity[i] = momentum * velocity[i] - learning_rate * gradient;
+            newParameters[i] = parameters[i] + velocity[i];
+        }
+    }
+
+    void fit(std::vector<std::vector<DualNum<T>>> X_train, std::vector<DualNum<T>> y_train, lossFunction lossFunc = lossFunction::mean_squared_error, double learning_rate = 0.01, int epochs = 100, int verbose = 2) {
+        if (y_train.size() != X_train.size()) {
+            throw std::runtime_error("The number of training samples does not match the number of labels.");
+        }
+
+        auto loss = [X_train, y_train, this, lossFunc](std::vector<DualNum<T>> params) mutable {
+            std::vector<std::vector<DualNum<T>>> yhat = this->predictAll(X_train, params);
+            DualNum<T> result(0, 0);
+
+            for (int i = 0; i < yhat.size(); i++) {
+                if (lossFunc == lossFunction::mean_squared_error) {
+                    result += (y_train[i] - yhat[i][0]) * (y_train[i] - yhat[i][0]);
+                } else if (lossFunc == lossFunction::binary_crossentropy) {
+                    result -= ((y_train[i] * Dual::log(yhat[i][0]) + (1 - y_train[i]) * Dual::log(1 - yhat[i][0])));
+                } else if (lossFunc == lossFunction::categorical_crossentropy) {
+                    result -= Dual::log(yhat[i][y_train[i].getReal()]);
+                }
+            }
+
+            return result / static_cast<double>(yhat.size());
+        };
+
+        int no_of_threads = std::thread::hardware_concurrency();
+
+        for (int epoch = 1; epoch <= epochs; epoch++) {
+            std::vector<DualNum<T>> newParameters(parameters.size(), DualNum<T>(0, 0));
+            std::vector<std::thread> threads;
+
+            if (no_of_threads >= parameters.size()) {
+                for (int i = 0; i < parameters.size(); i++) {
+                    threads.emplace_back(&ANN_Model::updateParameters<decltype(loss)>, this, learning_rate, loss, std::ref(newParameters), i, i + 1);
+                }
+            } else {
+                int start = 0;
+                int portion_for_each = parameters.size() / no_of_threads;
+
+                for (int i = 0; i < no_of_threads; i++) {
+                    int end = (i == (no_of_threads - 1) ? parameters.size() : start + portion_for_each);
+                    threads.emplace_back(&ANN_Model::updateParameters<decltype(loss)>, this, learning_rate, loss, std::ref(newParameters), start, end);
                     start = end;
                 }
-
-                vector<DualNum> currentBiasVect(params.begin() + start, params.begin() + start + nodes[i]);
-
-                start += nodes[i];
-
-                vector<DualNum> tempVect = Dual::originalMatMul(vector<vector<DualNum>>(1, inputVect), currentWeightMatrix)[0];
-
-                DualNum expSums("sums", 0, 0);
-                if (activationFunctions[i] == activations::softmax){
-                    for (int j = 0; j < tempVect.size(); j++){
-                        expSums += Dual::exp(tempVect[j] + currentBiasVect[j]);
-                    }
-                }
-
-                for (int j = 0; j < tempVect.size(); j++){
-                    tempVect[j] += currentBiasVect[j];
-
-                    if (activationFunctions[i] == activations::relu){
-                        tempVect[j] = Dual::relu(tempVect[j]);
-                    } else if (activationFunctions[i] == activations::sigmoid){
-                        tempVect[j] = Dual::sigmoid(tempVect[j]);
-                    } else if (activationFunctions[i] == activations::tanh){
-                        tempVect[j] = Dual::tanh(tempVect[j]);
-                    } else if (activationFunctions[i] == activations::softmax){
-                        tempVect[j] = Dual::softmax(tempVect, j, expSums);
-                    }
-                }
-
-             inputVect = tempVect;
             }
 
-            return inputVect;
-        }
-
-        vector<vector<DualNum>> predictAll(vector<vector<DualNum>> data, vector<DualNum> params = {}){
-            if (data[0].size() != inputs){
-                throw std::runtime_error("The shape of the inputs isn't right!");
+            for (auto& thread : threads) {
+                thread.join();
             }
 
-            vector<vector<DualNum>> entireOutputs;
+            parameters = newParameters;
 
-            for (int i = 0; i < data.size(); i++){
-                entireOutputs.push_back(predict(data[i], params));
-            }
+            auto loss_function = Dual::mse;
 
-            return entireOutputs;
-        }
-
-        template <typename Func>
-        void updateParameters(double learning_rate, Func loss, vector<DualNum>& newParameters, int start, int end){
-            for (int i = start; i < end; i++){
-                double gradient = partialDerivative(loss, parameters, i, parameters[i].getReal());
-                velocity[i] = momentum * velocity[i] - learning_rate * gradient;
-                newParameters[i] = parameters[i] + velocity[i];
+            if (verbose == 2) {
+                std::cout << "\nEpoch no: " << epoch << " completed!, Loss = " << loss_function(y_train, this->predictAll(X_train)).getReal() << std::endl;
+            } else if (verbose == 1) {
+                std::cout << "\nEpoch no: " << epoch << " completed!" << std::endl;
+            } else if (verbose == 3) {
+                std::vector<std::vector<DualNum<T>>> yhat = this->predictAll(X_train);
+                std::cout << "\nEpoch no: " << epoch << " completed!, Loss = " << loss_function(y_train, yhat).getReal() << " accuracy = " << Dual::accuracy(y_train, yhat).getReal() << std::endl;
             }
         }
-
-        void fit(vector<vector<DualNum>> X_train, vector<DualNum> y_train, lossFunction lossFunc = lossFunction::mean_squared_error, double learning_rate = 0.01, int epochs = 100, int verbose = 2){
-            if (y_train.size() != X_train.size()){
-                throw std::runtime_error("The shape of the X_train and y_train don't match !");
-            }
-
-            auto loss = [X_train, y_train, this, lossFunc](vector<DualNum> params) mutable {
-                vector<vector<DualNum>> yhat = this->predictAll(X_train, params);
-
-                DualNum result("result", 0, 0);
-
-                for (int i = 0; i < yhat.size(); i++){
-                    if (lossFunc == lossFunction::mean_squared_error){
-                        result += (y_train[i] - yhat[i][0]) * (y_train[i] - yhat[i][0]);
-                    } else if (lossFunc == lossFunction::binary_crossentropy){
-                        result -= (y_train[i] * Dual::log(yhat[i][0]) + (1 - y_train[i]) * Dual::log(1 - yhat[i][0]));
-                    } else if (lossFunc == lossFunction::categorical_crossentropy){
-                        result -= Dual::log(yhat[i][y_train[i].getReal()]);
-                    }
-                }
-
-                return result / (double)(yhat.size());
-            };
-
-            int no_of_threads = std::thread::hardware_concurrency();
-
-            for (int epoch = 1; epoch <= epochs; epoch++){
-                vector<DualNum> newParameters(parameters.size(), DualNum("dummyParam", 0, 0));
-
-                vector<std::thread> threads;
-
-                if (no_of_threads >= parameters.size()){
-                    for (int i = 0; i < parameters.size(); i++){
-                        threads.emplace_back(&ANN_Model::updateParameters<decltype(loss)>, this, learning_rate, loss, std::ref(newParameters), i, i+1);
-                    }
-                } else {
-                    int start = 0;
-                    int portion_for_each = parameters.size() / no_of_threads;
-
-                    for(int i = 0; i < no_of_threads; i++){
-                        int end = (i == (no_of_threads - 1) ? parameters.size() : start + portion_for_each);
-                        threads.emplace_back(&ANN_Model::updateParameters<decltype(loss)>, this, learning_rate, loss, std::ref(newParameters), start, end);
-                        start = end;
-                    }
-                }
-
-                for (auto& thread: threads){
-                    thread.join();
-                }
-
-                parameters = newParameters;
-
-                auto loss_function = Dual::mse;
-
-                if (verbose == 2){
-                    std::cout << "\n Epoch no: " << epoch << " completed!, Loss = "  << loss_function(y_train, this->predictAll(X_train)).getReal()  << std::endl;
-                } else if (verbose == 1){
-                    std::cout << "\n Epoch no: " << epoch << " completed!" << std::endl;
-                }
-
-            }
-        }
+    }
 };
+
 
 #endif

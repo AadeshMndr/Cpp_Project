@@ -11,322 +11,314 @@
 using std::vector;
 using std::string;
 
+template <typename T = double>
 class DualNum {
-    private:
-        string name;
-        long double real;
-        long double dual;
+private:
+    double real;
+    double dual;
 
-    public:
-        DualNum(string n, long double r = 0, long double e = 0){
-            name = n;
-            real = r;
-            dual = e;
-        }
+public:
+    DualNum(double r = 0, double e = 0) {
+        real = r;
+        dual = e;
+    }
 
-        DualNum(const DualNum& num){
-            name = num.name;
-            real = num.real;
-            dual = num.dual;
-        }
+    DualNum(const T& num) {
+        real = num.real;
+        dual = num.dual;
+    }
 
-        long double getReal(){
-            return real;
-        }
+    double getReal() {
+        return real;
+    }
 
-        long double getDual(){
-            return dual;
-        }
+    double getDual() {
+        return dual;
+    }
 
-        void setReal(long double r){
-            real = r;
-        }
+    void setReal(double r) {
+        real = r;
+    }
 
-        void setDual(long double e){
-            dual = e;
-        }
+    void setDual(double e) {
+        dual = e;
+    }
 
-        string getName(){
+    string getExpression() {
+        return std::to_string(real) + " + " + std::to_string(dual) + "E";
+    }
 
-            return name;
-        }
+    void operator = (double realVal) {
+        real = realVal;
+    }
 
-        string getExpression(){
-            return std::to_string(real) + " + " + std::to_string(dual) + "E";
-        }
+    T operator * (T num) {
+        return T(real * num.real, (real * num.dual + dual * num.real));
+    }
 
-        void setName(string n){
-            name = n;
-        }
+    void operator *= (T num) {
 
-        void operator = (long double realVal){
-            real = realVal;
-        }
+        double tempReal = real * num.real;
 
-        DualNum operator * (DualNum num){
-            return DualNum("(" + name + "*" + num.name + ")", real * num.real, (real * num.dual + dual * num.real));
-        }
+        double tempDual = (real * num.dual + dual * num.real);
 
-        void operator *= (DualNum num){
-            name = "(" + name + "*" + num.name + ")";
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempReal = real * num.real;
+    T operator * (const double k) {
+        return T(real * k, dual * k);
+    }
 
-            long double tempDual = (real * num.dual + dual * num.real);
+    void operator *= (const double k) {
 
-            real = tempReal;
-            dual = tempDual;
-        }
+        double tempReal = real * k;
 
-        DualNum operator * (const long double k){
-            return DualNum("(" + name + "*" + std::to_string(k) + ")", real * k, dual * k);
-        }
+        double tempDual = dual * k;
 
-        void operator *= (const long double k){
-            name = "(" + name + "*" + std::to_string(k) + ")";
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempReal =  real * k;
+    T operator / (T num) {
+        return T(real / num.real, (dual * num.real - real * num.dual) / (num.real * num.real));
+    }
 
-            long double tempDual = dual * k;
+    void operator /= (T num) {
 
-            real = tempReal;
-            dual = tempDual;
-        }
+        double tempReal = real / num.real;
 
-        DualNum operator / (DualNum num){
-            return DualNum("(" + name + "/" + num.name + ")", real / num.real, (dual * num.real - real * num.dual) / (num.real * num.real));
-        }
+        double tempDual = (dual * num.real - real * num.dual) / (num.real * num.real);
 
-        void operator /= (DualNum num){
-            name = "(" + name + "/" + num.name + ")";
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempReal =  real / num.real;
+    T operator / (const double k) {
+        return T(real / k, dual / k);
+    }
 
-            long double tempDual = (dual * num.real - real * num.dual) / (num.real * num.real);
+    void operator /= (const double k) {
 
-            real = tempReal;
-            dual = tempDual;
-        }
+        double tempReal = real / k;
 
-        DualNum operator / (const long double k){
-            return DualNum("(" + name + "/" + std::to_string(k) + ")", real / k, dual / k);
-        }
+        double tempDual = dual / k;
 
-        void operator /= (const long double k){
-            name = "(" + name + "/" + std::to_string(k) + ")";
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempReal =  real / k;
+    T operator + (T num) {
+        return T(real + num.real, dual + num.dual);
+    }
 
-            long double tempDual =  dual / k;
+    void operator += (T num) {
 
-            real = tempReal;
-            dual = tempDual;
-        }
+        double tempReal = real + num.real;
 
-        DualNum operator + (DualNum num){
-            return DualNum("(" + name + "+" + num.name + ")", real + num.real, dual + num.dual);
-        }
-        
-        void operator += (DualNum num){
-            name = "(" + name + "+" + num.name + ")";
+        double tempDual = dual + num.dual;
 
-            long double tempReal =  real + num.real;
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempDual =  dual + num.dual;
+    T operator + (const double k) {
+        return T(real + k, dual);
+    }
 
-            real = tempReal;
-            dual = tempDual;
-        }
+    void operator += (const double k) {
 
-        DualNum operator + (const long double k){
-            return DualNum("(" + name + "+" + std::to_string(k) + ")", real + k, dual);
-        }
+        double tempReal = real + k;
 
-        void operator += (const long double k){
-            name = "(" + name + "+" + std::to_string(k) + ")";
+        double tempDual = dual;
 
-            long double tempReal =  real + k;
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempDual =  dual;
+    T operator - (T num) {
+        return T(real - num.real, dual - num.dual);
+    }
 
-            real = tempReal;
-            dual = tempDual;
-        }
+    void operator -= (T num) {
 
-        DualNum operator - (DualNum num){
-            return DualNum("(" +  name + "-" + num.name + ")", real - num.real, dual - num.dual);
-        }
+        double tempReal = real - num.real;
 
-        void operator -= (DualNum num){
-            name = "(" +  name + "-" + num.name + ")";
+        double tempDual = dual - num.dual;
 
-            long double tempReal =  real - num.real;
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempDual =  dual - num.dual;
+    T operator - (const double k) {
+        return T(real - k, dual);
+    }
 
-            real = tempReal;
-            dual = tempDual;
-        }
+    void operator -= (const double k) {
 
-        DualNum operator - (const long double k){
-            return DualNum("(" + name + "-" + std::to_string(k) + ")", real - k, dual);
-        }
+        double tempReal = real - k;
 
-        void operator -= (const long double k){
-            name = "(" + name + "-" + std::to_string(k) + ")";
+        double tempDual = dual;
 
-            long double tempReal =  real - k;
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempDual =  dual;
+    T operator ^ (T num) {
+        double realTerm = std::pow(real, num.real);
 
-            real = tempReal;
-            dual = tempDual;
-        }
+        return T(realTerm, realTerm * ((dual * num.real / real) + num.dual * std::log(real)));
+    }
 
-        DualNum operator ^ (DualNum num){
-            long double realTerm = std::pow(real, num.real);
+    void operator ^= (T num) {
+        double realTerm = std::pow(real, num.real);
 
-            return DualNum("((" + name + ")" + "^" + "(" + num.name + "))", realTerm, realTerm * ((dual * num.real / real) + num.dual * std::log(real)));
-        }
+        double tempReal = realTerm;
 
-        void operator ^= (DualNum num){
-            long double realTerm = std::pow(real, num.real);
+        double tempDual = realTerm * ((dual * num.real / real) + num.dual * std::log(real));
 
-            name = "((" + name + ")" + "^" + "(" + num.name + "))";
+        real = tempReal;
+        dual = tempDual;
+    }
 
-            long double tempReal =  realTerm;
+    T operator ^ (const double k) {
+        double realTerm = std::pow(real, k);
 
-            long double tempDual =  realTerm * ((dual * num.real / real) + num.dual * std::log(real));
+        return T(realTerm, realTerm * ((dual * k / real)));
+    }
 
-            real = tempReal;
-            dual = tempDual;
-        }
+    void operator ^= (const double k) {
+        double realTerm = std::pow(real, k);
 
-        DualNum operator ^ (const long double k){
-            long double realTerm = std::pow(real, k);
+        double tempReal = realTerm;
 
-            return DualNum("((" + name + ")" + "^" + "(" + std::to_string(k) + "))", realTerm, realTerm * ((dual * k / real)));
-        }
+        double tempDual = realTerm * ((dual * k / real));
 
-        void operator ^= (const long double k){
-            long double realTerm = std::pow(real, k);
-
-            name = "((" + name + ")" + "^" + "(" + std::to_string(k) + "))";
-
-            long double tempReal =  realTerm;
-
-            long double tempDual =  realTerm * ((dual * k / real));
-
-            real = tempReal;
-            dual = tempDual;
-        }
+        real = tempReal;
+        dual = tempDual;
+    }
 };
 
 //Normal Numbers Operator Overloading
 
-DualNum operator * (long double k, DualNum num){
-    return DualNum("(" + std::to_string(k) + "*" + num.getName() + ")", k * num.getReal(), k * num.getDual());
+// Normal Numbers Operator Overloading
+template<typename T = double>
+DualNum<T> operator * (double k, DualNum<T> num) {
+    return DualNum<T>(k * num.getReal(), k * num.getDual());
 }
 
-DualNum operator / (long double k, DualNum num){
-    return DualNum("(" + std::to_string(k) + "/" + num.getName() + ")", k / num.getReal(), -1 * (k * num.getDual()) / (num.getReal() * num.getReal()));
+template<typename T = double>
+DualNum<T> operator / (double k, DualNum<T> num) {
+    return DualNum<T>(k / num.getReal(), -1 * (k * num.getDual()) / (num.getReal() * num.getReal()));
 }
 
-DualNum operator + (long double k, DualNum num){
-    return DualNum("(" + std::to_string(k) + "+" + num.getName() + ")", k + num.getReal(), num.getDual());
+template<typename T = double>
+DualNum<T> operator + (double k, DualNum<T> num) {
+    return DualNum<T>(k + num.getReal(), num.getDual());
 }
 
-DualNum operator - (long double k, DualNum num){
-    return DualNum("(" + std::to_string(k) + "-" + num.getName() + ")", k - num.getReal(), -1 * num.getDual());
+template<typename T = double>
+DualNum<T> operator - (double k, DualNum<T> num) {
+    return DualNum<T>(k - num.getReal(), -1 * num.getDual());
 }
 
-DualNum operator ^ (long double k, DualNum num){
-    long double realTerm = std::pow(k, num.getReal());
-
-    return DualNum("((" + std::to_string(k) + ")" + "^" + "(" + num.getName() + "))", realTerm, realTerm * num.getDual() * std::log(k));
+template<typename T = double>
+DualNum<T> operator ^ (double k, DualNum<T> num) {
+    T realTerm = std::pow(k, num.getReal());
+    return DualNum<T>(realTerm, realTerm * num.getDual() * std::log(k));
 }
+
 
 
 //Some standard functions
 
 namespace Dual {
 
-    DualNum pow(DualNum x, DualNum y){
-        long double realTerm = std::pow(x.getReal(), y.getReal());
-
-        return DualNum("((" + x.getName() + ")" + "^" + "(" + y.getName() + "))", realTerm, realTerm * ((x.getDual() * y.getReal() / x.getReal()) + y.getDual() * std::log(x.getReal())));
+    template<typename T = double>
+    DualNum<T> pow(DualNum<T> x, DualNum<T> y) {
+        T realTerm = std::pow(x.getReal(), y.getReal());
+        return DualNum<T>(realTerm, realTerm * ((x.getDual() * y.getReal() / x.getReal()) + y.getDual() * std::log(x.getReal())));
     }
 
-    DualNum exp(DualNum x){
-        long double real = std::exp(x.getReal());
-
-        return DualNum("(e^" + x.getName() + ")", real, real * x.getDual());
+    template<typename T = double>
+    DualNum<T> exp(DualNum<T> x) {
+        T real = std::exp(x.getReal());
+        return DualNum<T>(real, real * x.getDual());
     }
 
-    DualNum log(DualNum x){
-        return DualNum("(log(" + x.getName() + "))", std::log(x.getReal()), x.getDual() / x.getReal());
+    template<typename T = double>
+    DualNum<T> log(DualNum<T> x) {
+        return DualNum<T>(std::log(x.getReal()), x.getDual() / x.getReal());
     }
 
-    DualNum relu(DualNum x){
-        if (x.getReal() <= 0){
+    template<typename T = double>
+    DualNum<T> relu(DualNum<T> x) {
+        if (x.getReal() <= 0) {
             x.setReal(0);
             x.setDual(0);
-        }  
-
+        }
         return x;
     }
 
-    DualNum tanh(DualNum x){
-
-        DualNum posexp = Dual::exp(x);
-
-        DualNum negexp = Dual::exp(-1 * x);
-
-        return ((posexp - negexp) / ((posexp + negexp)));
+    template<typename T = double>
+    DualNum<T> tanh(DualNum<T> x) {
+        DualNum<T> posexp = Dual::exp(x);
+        DualNum<T> negexp = Dual::exp(-1 * x);
+        return ((posexp - negexp) / (posexp + negexp));
     }
 
-    DualNum sigmoid(DualNum x){
+    template<typename T = double>
+    DualNum<T> sigmoid(DualNum<T> x) {
         return (1 / (1 + Dual::exp(-1 * x)));
     }
 
-    DualNum softmax (vector<DualNum> X, int index, DualNum sum = DualNum("summation(e)", 0, 0)) {
-
-        if (sum.getReal() == 0){
-            vector<DualNum>::iterator iter;
-            
-            for(iter = X.begin(); iter != X.end(); iter++){
-                sum += Dual::exp(*iter);
-            }   
+    template<typename T = double>
+    DualNum<T> softmax(std::vector<DualNum<T>> X, int index, DualNum<T> sum = DualNum<T>(0, 0)) {
+        if (sum.getReal() == 0) {
+            for (auto& elem : X) {
+                sum += Dual::exp(elem);
+            }
         }
-
         return (Dual::exp(X[index]) / sum);
     }
 
-    DualNum mse(vector<DualNum> y_train, vector<vector<DualNum>> yhat){
-        DualNum sum("0", 0, 0);
-
-        for (int i = 0; i < yhat.size(); i++){
+    template<typename T = double>
+    DualNum<T> mse(std::vector<DualNum<T>> y_train, std::vector<std::vector<DualNum<T>>> yhat) {
+        DualNum<T> sum(0, 0);
+        for (size_t i = 0; i < yhat.size(); i++) {
             sum += (y_train[i] - yhat[i][0]) * (y_train[i] - yhat[i][0]);
         }
-
-        return (sum / (double)(yhat.size()));
+        return (sum / static_cast<T>(yhat.size()));
     }
 
-    vector<vector<DualNum>> originalMatMul(vector<vector<DualNum>> A, vector<vector<DualNum>> B){
-        int Arows = A.size();
-        int Acols = A[0].size();
-        int Brows = B.size();
-        int Bcols = B[0].size();
+    template<typename T = double>
+    DualNum<T> accuracy(std::vector<DualNum<T>> y_train, std::vector<std::vector<DualNum<T>>> yhat, double threshold = 0.5) {
+        DualNum<T> correct(0, 0);
+        for (size_t i = 0; i < yhat.size(); i++) {
+            if ((y_train[i].getReal() == 1 && yhat[i][0].getReal() >= threshold) ||
+                (y_train[i].getReal() == 0 && yhat[i][0].getReal() < threshold)) {
+                correct += 1;
+            }
+        }
+        return correct / static_cast<T>(yhat.size());
+    }
 
-        if (Acols != Brows){
-            throw std::runtime_error("The shapes of the Matrices don't match first=(" + std::to_string(Arows) + ", " + std::to_string(Acols) + ") and second = (" + std::to_string(Brows) + ", " + std::to_string(Bcols) + ")");
+    template<typename T = double>
+    std::vector<std::vector<DualNum<T>>> originalMatMul(std::vector<std::vector<DualNum<T>>> A, std::vector<std::vector<DualNum<T>>> B) {
+        size_t Arows = A.size();
+        size_t Acols = A[0].size();
+        size_t Brows = B.size();
+        size_t Bcols = B[0].size();
+
+        if (Acols != Brows) {
+            throw std::runtime_error("The shapes of the Matrices don't match.");
         }
 
-        vector<vector<DualNum>> result(Arows, vector<DualNum>(Bcols, DualNum("0", 0)));
+        std::vector<std::vector<DualNum<T>>> result(Arows, std::vector<DualNum<T>>(Bcols, DualNum<T>(0)));
 
-        for (int i = 0; i < Arows; i++){
-            for (int j = 0; j < Bcols; j++){
-                for (int k = 0;  k < Brows; k++){
+        for (size_t i = 0; i < Arows; i++) {
+            for (size_t j = 0; j < Bcols; j++) {
+                for (size_t k = 0; k < Brows; k++) {
                     result[i][j] += A[i][k] * B[k][j];
                 }
             }
@@ -335,28 +327,30 @@ namespace Dual {
         return result;
     }
 
-    void partialMatMul(vector<vector<DualNum>>& A, vector<vector<DualNum>>& B, vector<vector<DualNum>>& result, int start, int end){
-        int Arows = A.size();
-        int Acols = A[0].size();
-        int Brows = B.size();
-        int Bcols = B[0].size();
+    template<typename T = double>
+    void partialMatMul(std::vector<std::vector<DualNum<T>>>& A, std::vector<std::vector<DualNum<T>>>& B, std::vector<std::vector<DualNum<T>>>& result, size_t start, size_t end) {
+        size_t Arows = A.size();
+        size_t Acols = A[0].size();
+        size_t Brows = B.size();
+        size_t Bcols = B[0].size();
 
-        if (Acols != Brows){
-            throw std::runtime_error("The shapes of the Matrices don't match first=(" + std::to_string(Arows) + ", " + std::to_string(Acols) + ") and second = (" + std::to_string(Brows) + ", " + std::to_string(Bcols) + ")");
+        if (Acols != Brows) {
+            throw std::runtime_error("The shapes of the Matrices don't match.");
         }
 
         if (Arows >= Bcols) {
-            for (int i = start; i < end; i++){
-                for (int j = 0; j < Bcols; j++){
-                    for (int k = 0;  k < Brows; k++){
+            for (size_t i = start; i < end; i++) {
+                for (size_t j = 0; j < Bcols; j++) {
+                    for (size_t k = 0; k < Brows; k++) {
                         result[i][j] += A[i][k] * B[k][j];
                     }
                 }
             }
-        } else {
-            for (int i = 0; i < Arows; i++){
-                for (int j = start; j < end; j++){
-                    for (int k = 0;  k < Brows; k++){
+        }
+        else {
+            for (size_t i = 0; i < Arows; i++) {
+                for (size_t j = start; j < end; j++) {
+                    for (size_t k = 0; k < Brows; k++) {
                         result[i][j] += A[i][k] * B[k][j];
                     }
                 }
@@ -364,49 +358,48 @@ namespace Dual {
         }
     }
 
-    vector<vector<DualNum>> matmul(vector<vector<DualNum>>& A, vector<vector<DualNum>>& B){
-        int Arows = A.size();
-        int Acols = A[0].size();
-        int Brows = B.size();
-        int Bcols = B[0].size();
+    template<typename T = double>
+    std::vector<std::vector<DualNum<T>>> matmul(std::vector<std::vector<DualNum<T>>>& A, std::vector<std::vector<DualNum<T>>>& B) {
+        size_t Arows = A.size();
+        size_t Acols = A[0].size();
+        size_t Brows = B.size();
+        size_t Bcols = B[0].size();
 
-        int no_of_threads = std::thread::hardware_concurrency();
+        size_t no_of_threads = std::thread::hardware_concurrency();
+        size_t LargerDimension = (Arows >= Bcols) ? Arows : Bcols;
 
-        int LargerDimension = (Arows >= Bcols) ? Arows : Bcols;
-
-        if (LargerDimension < no_of_threads * 5){
+        if (LargerDimension < no_of_threads * 5) {
             return Dual::originalMatMul(A, B);
         }
 
-        vector<std::thread> threads;
+        std::vector<std::thread> threads;
+        std::vector<std::vector<DualNum<T>>> result(Arows, std::vector<DualNum<T>>(Bcols, DualNum<T>(0)));
 
-        vector<vector<DualNum>> result (Arows, vector<DualNum>(Bcols, DualNum("0", 0)));
+        size_t portion_for_each_thread = LargerDimension / no_of_threads;
+        size_t start = 0;
 
-
-        int portion_for_each_thread = LargerDimension / no_of_threads;
-
-        int start = 0;
-        for (int i = 0; i < no_of_threads; i++){
-            int end = (i == (no_of_threads - 1) ? LargerDimension : start + portion_for_each_thread);
-            threads.emplace_back(partialMatMul, std::ref(A), std::ref(B), std::ref(result), start, end);
+        for (size_t i = 0; i < no_of_threads; i++) {
+            size_t end = (i == (no_of_threads - 1)) ? LargerDimension : start + portion_for_each_thread;
+            threads.emplace_back(partialMatMul<T>, std::ref(A), std::ref(B), std::ref(result), start, end);
             start = end;
         }
 
-        for (auto& eachThread: threads){
+        for (auto& eachThread : threads) {
             eachThread.join();
         }
 
         return result;
     }
 
-    void displayMatrix(vector<vector<DualNum>> mat){
-        int rows = mat.size();
-        int cols = mat[0].size();
+    template<typename T = double>
+    void displayMatrix(const std::vector<std::vector<DualNum<T>>>& mat) {
+        size_t rows = mat.size();
+        size_t cols = mat[0].size();
 
-        for (int i = 0; i < rows; i++){
+        for (size_t i = 0; i < rows; i++) {
             std::cout << "\n\n";
-            for (int j = 0; j < cols; j++){
-                std::cout << mat[i][j].getExpression() << "\t";
+            for (size_t j = 0; j < cols; j++) {
+                std::cout << mat[i][j] << "\t";
             }
         }
     }
@@ -415,61 +408,61 @@ namespace Dual {
 
 
 
+
 //some extra functions 
 
-long double partialDerivative(DualNum (*func)(vector<DualNum>), vector<DualNum> params, int paramIndex = 0, long double at = 1){
+template<typename T = double>
+double partialDerivative(DualNum<T>(*func)(std::vector<DualNum<T>>), std::vector<DualNum<T>> params, int paramIndex = 0, double at = 1) {
     params[paramIndex].setDual(1);
 
-    if (at != 1){
+    if (at != 1) {
         params[paramIndex].setReal(at);
     }
 
     return ((*func)(params)).getDual();
 }
 
-template<typename Func>
-long double partialDerivative(Func func, vector<DualNum> params, int paramIndex = 0, long double at = 1){
+template<typename Func, typename T = double>
+double partialDerivative(Func func, std::vector<DualNum<T>> params, int paramIndex = 0, double at = 1) {
     params[paramIndex].setDual(1);
 
-    if (at != 1){
+    if (at != 1) {
         params[paramIndex].setReal(at);
     }
 
     return (func(params)).getDual();
 }
 
-long double partialDerivative(DualNum (*func)(DualNum), long double at = 1){
-    DualNum extX("x+E", at, 1);
-    DualNum x("x", at, 0);
+template<typename T = double>
+double partialDerivative(DualNum<T>(*func)(DualNum<T>), double at = 1) {
+    DualNum<T> extX(at, 1);
+    DualNum<T> x(at, 0);
 
     return ((*func)(extX) - (*func)(x)).getDual();
 }
 
-DualNum evaluatePartialDerivative(DualNum (*func)(DualNum), long double at = 1){
-    DualNum x("x", at, 1);
+template<typename T = double>
+DualNum<T> evaluatePartialDerivative(DualNum<T>(*func)(DualNum<T>), double at = 1) {
+    DualNum<T> x(at, 1);
 
     return ((*func)(x));
 }
 
-double solveUsingNewtonRaphson(DualNum (*func)(DualNum), double initialGuess = 1, int max_no_of_iterations = 10000){
-    
-    long double threshold = 0.00001;
 
+template<typename T = double>
+double solveUsingNewtonRaphson(DualNum<T>(*func)(DualNum<T>), double initialGuess = 1, int max_no_of_iterations = 10000) {
+    double threshold = 0.00001;
     double x = initialGuess;
-
-    DualNum result("result");
-
+    DualNum<T> result;
     int iterations = 0;
 
     do {
         result = evaluatePartialDerivative(func, x);
-
         x = x - (result.getReal() / result.getDual());
-
         iterations++;
 
-        if (iterations > max_no_of_iterations){
-            std::cout << "\nCouldn't converge within given no of iterations." << std::endl; 
+        if (iterations > max_no_of_iterations) {
+            std::cout << "\nCouldn't converge within given number of iterations." << std::endl;
             break;
         }
 
@@ -477,5 +470,6 @@ double solveUsingNewtonRaphson(DualNum (*func)(DualNum), double initialGuess = 1
 
     return x;
 }
+
 
 #endif

@@ -89,6 +89,9 @@ public:
     void operator -= (const double num);
     friend ExtendedDualNum operator - (const double num, const ExtendedDualNum& another);
 
+    ExtendedDualNum operator - ();
+    ExtendedDualNum operator + ();
+
     ExtendedDualNum operator / (const ExtendedDualNum& another) const;
     void operator /= (const ExtendedDualNum& another);
     ExtendedDualNum operator / (const double num) const;
@@ -102,6 +105,8 @@ public:
     ExtendedDualNum operator ^ (const ExtendedDualNum& another) const;
     void operator ^= (const ExtendedDualNum& another);
     friend ExtendedDualNum operator ^ (const double n, const ExtendedDualNum& num); //This is not actually required to be a friend 
+
+    // operator double();
 
     double getPartialDerivative(int i = 1) const;
 };
