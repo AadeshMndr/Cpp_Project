@@ -13,22 +13,22 @@ using std::vector;
 int main() {
 
     //data generation
-    vector<DualNum> Y;
-    vector<vector<DualNum>> X;
+    vector<DualNum<double>> Y;
+    vector<vector<DualNum<double>>> X;
 
      for (int i = 0; i < 100; i++){
-        Y.push_back(DualNum(std::sin((float)i / 10), 0));
-        vector<DualNum> vectX(1, DualNum((float)i / 10, 0));
+        Y.push_back(DualNum<double>(std::sin((float)i / 10), 0));
+        vector<DualNum<double>> vectX(1, DualNum<double>((float)i / 10, 0));
 
         X.push_back(vectX);
     }
 
     //model
-    ANN_Model model(1, vector<int> {16, 7, 5, 1}, vector<activations> { activations::relu, activations::relu, activations::sigmoid, activations::linear});
+    ANN_Model<double> model(1, vector<int> {16, 7, 5, 1}, vector<activations> { activations::relu, activations::relu, activations::sigmoid, activations::linear});
 
 
     //fitting the model and getting the results
-    vector<vector<DualNum>> yhat = model.predictAll(X);
+    vector<vector<DualNum<double>>> yhat = model.predictAll(X);
 
     std::cout << "\nThe current loss is: " << Dual::mse(Y, yhat).getReal() << std::endl;
 
