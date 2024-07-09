@@ -19,21 +19,21 @@ int main() {
     std::normal_distribution<> dis(0, 1);
 
     //data generation
-    vector<DualNum<double>> Y;
-    vector<vector<DualNum<double>>> X;
+    vector<DualNum> Y;
+    vector<vector<DualNum>> X;
 
     int n = 100;
 
      for (int i = 0; i < n; i++){
-        // Y.push_back(DualNum<double>(std::sin((float)i / 10), 0));
-        vector<DualNum<double>> vectX = {dis(gen), dis(gen), dis(gen)};
+        // Y.push_back(DualNum(std::sin((float)i / 10), 0));
+        vector<DualNum> vectX = {dis(gen), dis(gen), dis(gen)};
 
         X.push_back(vectX);
 
         if (((vectX[0].getReal() >= 0 && vectX[1].getReal() >= 0 && vectX[2].getReal() > 0) || (vectX[0].getReal() < 0 && vectX[1].getReal() < 0 && vectX[2].getReal() >= 0)) || (vectX[0].getReal() > 0 && vectX[1].getReal() < 0 && vectX[2].getReal() < 0) || (vectX[0].getReal() < 0 && vectX[1].getReal() > 0 && vectX[2].getReal() <= 0)){
-            Y.push_back(DualNum<double>(1, 0));
+            Y.push_back(DualNum(1, 0));
         } else {
-            Y.push_back(DualNum<double>(0, 0));
+            Y.push_back(DualNum(0, 0));
         }
     }
 
@@ -45,15 +45,15 @@ int main() {
 
     }
 
-    vector<vector<DualNum<double>>> X_test = {
-        {DualNum<double>(1, 0), DualNum<double>(1, 0), DualNum<double>(1, 0)},
-        {DualNum<double>(-1, 0), DualNum<double>(-1, 0), DualNum<double>(1, 0)},
-        {DualNum<double>(1, 0), DualNum<double>(-1, 0), DualNum<double>(-1, 0)},
-        {DualNum<double>(-1, 0), DualNum<double>(1, 0), DualNum<double>(-1, 0)},
-        {DualNum<double>(1, 0), DualNum<double>(-1, 0), DualNum<double>(1, 0)},
-        {DualNum<double>(-1, 0), DualNum<double>(1, 0), DualNum<double>(1, 0)},
-        {DualNum<double>(1, 0), DualNum<double>(1, 0), DualNum<double>(-1, 0)},
-        {DualNum<double>(-1, 0), DualNum<double>(-1, 0), DualNum<double>(-1, 0)},
+    vector<vector<DualNum>> X_test = {
+        {DualNum(1, 0), DualNum(1, 0), DualNum(1, 0)},
+        {DualNum(-1, 0), DualNum(-1, 0), DualNum(1, 0)},
+        {DualNum(1, 0), DualNum(-1, 0), DualNum(-1, 0)},
+        {DualNum(-1, 0), DualNum(1, 0), DualNum(-1, 0)},
+        {DualNum(1, 0), DualNum(-1, 0), DualNum(1, 0)},
+        {DualNum(-1, 0), DualNum(1, 0), DualNum(1, 0)},
+        {DualNum(1, 0), DualNum(1, 0), DualNum(-1, 0)},
+        {DualNum(-1, 0), DualNum(-1, 0), DualNum(-1, 0)},
     };
 
     std::cout << "\n" << one << " 1s" << " are there in this dataset! \n";
@@ -63,11 +63,11 @@ int main() {
 
 
     //fitting the model and getting the results
-    vector<vector<DualNum<double>>> yhat = model.predictAll(X);
+    vector<vector<DualNum>> yhat = model.predictAll(X);
 
     std::cout << "\nThe current loss is: " << Dual::mse(Y, yhat).getReal() << std::endl;
 
-    vector<vector<DualNum<double>>> y_hat_test = model.predictAll(X_test);
+    vector<vector<DualNum>> y_hat_test = model.predictAll(X_test);
 
     std::cout << "\nThe point (+, +, +) should be 1, the model gives = " << y_hat_test[0][0].getReal() << std::endl;
     std::cout << "\nThe point (-, -, +) should be 1, the model gives = " << y_hat_test[1][0].getReal() << std::endl;
