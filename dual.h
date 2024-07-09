@@ -27,11 +27,11 @@ public:
         dual = num.dual;
     }
 
-    long double getReal() {
+    long double getReal() const {
         return real;
     }
 
-    long double getDual() {
+    long double getDual() const {
         return dual;
     }
 
@@ -43,7 +43,7 @@ public:
         dual = e;
     }
 
-    string getExpression() {
+    string getExpression() const {
         return std::to_string(real) + " + " + std::to_string(dual) + "E";
     }
 
@@ -51,7 +51,7 @@ public:
         real = realVal;
     }
 
-    DualNum operator * (DualNum num) {
+    DualNum operator * (const DualNum& num) const {
         return DualNum(real * num.real, (real * num.dual + dual * num.real));
     }
 
@@ -65,7 +65,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator * (const long double k) {
+    DualNum operator * (const long double k) const {
         return DualNum(real * k, dual * k);
     }
 
@@ -79,7 +79,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator / (DualNum num) {
+    DualNum operator / (const DualNum& num) const {
         return DualNum(real / num.real, (dual * num.real - real * num.dual) / (num.real * num.real));
     }
 
@@ -93,7 +93,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator / (const long double k) {
+    DualNum operator / (const long double k) const {
         return DualNum(real / k, dual / k);
     }
 
@@ -107,7 +107,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator + (DualNum num) {
+    DualNum operator + (const DualNum& num) const {
         return DualNum(real + num.real, dual + num.dual);
     }
 
@@ -121,7 +121,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator + (const long double k) {
+    DualNum operator + (const long double k) const {
         return DualNum(real + k, dual);
     }
 
@@ -135,7 +135,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator - (DualNum num) {
+    DualNum operator - (const DualNum& num) const {
         return DualNum(real - num.real, dual - num.dual);
     }
 
@@ -149,7 +149,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator - (const long double k) {
+    DualNum operator - (const long double k) const {
         return DualNum(real - k, dual);
     }
 
@@ -163,7 +163,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator ^ (DualNum num) {
+    DualNum operator ^ (const DualNum& num) const {
         long double realTerm = std::pow(real, num.real);
 
         return DualNum(realTerm, realTerm * ((dual * num.real / real) + num.dual * std::log(real)));
@@ -180,7 +180,7 @@ public:
         dual = tempDual;
     }
 
-    DualNum operator ^ (const long double k) {
+    DualNum operator ^ (const long double k) const {
         long double realTerm = std::pow(real, k);
 
         return DualNum(realTerm, realTerm * ((dual * k / real)));
@@ -227,32 +227,34 @@ DualNum operator ^ (long double k, DualNum num) {
 
 namespace Dual {
 
-    DualNum pow(DualNum x, DualNum y) {
+    DualNum pow(const DualNum& x, const DualNum& y) {
         long double realTerm = std::pow(x.getReal(), y.getReal());
 
         return DualNum(realTerm, realTerm * ((x.getDual() * y.getReal() / x.getReal()) + y.getDual() * std::log(x.getReal())));
     }
 
-    DualNum exp(DualNum x) {
+    DualNum exp(const DualNum& x) {
         long double real = std::exp(x.getReal());
 
         return DualNum(real, real * x.getDual());
     }
 
-    DualNum log(DualNum x) {
+    DualNum log(const DualNum& x) {
         return DualNum(std::log(x.getReal()), x.getDual() / x.getReal());
     }
 
-    DualNum relu(DualNum x) {
-        if (x.getReal() <= 0) {
-            x.setReal(0);
-            x.setDual(0);
+    DualNum relu(const DualNum& x) {
+        DualNum y = x;
+
+        if (y.getReal() <= 0) {
+            y.setReal(0);
+            y.setDual(0);
         }
 
-        return x;
+        return y;
     }
 
-    DualNum tanh(DualNum x) {
+    DualNum tanh(const DualNum& x) {
 
         DualNum posexp = Dual::exp(x);
 
@@ -261,11 +263,11 @@ namespace Dual {
         return ((posexp - negexp) / ((posexp + negexp)));
     }
 
-    DualNum sigmoid(DualNum x) {
+    DualNum sigmoid(const DualNum& x) {
         return (1 / (1 + Dual::exp(-1 * x)));
     }
 
-    DualNum softmax(vector<DualNum> X, int index, DualNum sum = DualNum(0, 0)) {
+    DualNum softmax(vector<DualNum>& X, int index, DualNum sum = DualNum(0, 0)) {
 
         if (sum.getReal() == 0) {
             vector<DualNum>::iterator iter;
@@ -278,7 +280,7 @@ namespace Dual {
         return (Dual::exp(X[index]) / sum);
     }
 
-    DualNum mse(vector<DualNum> y_train, vector<vector<DualNum>> yhat) {
+    DualNum mse(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat) {
         DualNum sum(0, 0);
 
         for (int i = 0; i < yhat.size(); i++) {
@@ -288,7 +290,7 @@ namespace Dual {
         return (sum / (double)(yhat.size()));
     }
 
-    DualNum binary_crossentropy(std::vector<DualNum>& y_train, std::vector<std::vector<DualNum>>& yhat) {
+    DualNum binary_crossentropy(const vector<DualNum>& y_train, const vector<std::vector<DualNum>>& yhat) {
         DualNum sum(0, 0);
         for (size_t i = 0; i < yhat.size(); i++) {
             sum = sum - (y_train[i] * Dual::log(yhat[i][0]) + (1.0 - y_train[i]) * Dual::log(1.0 - yhat[i][0]));
@@ -296,7 +298,7 @@ namespace Dual {
         return (sum / (yhat.size()));
     }
 
-    DualNum categorical_crossentropy(std::vector<DualNum>& y_train, std::vector<std::vector<DualNum>>& yhat) {
+    DualNum categorical_crossentropy(const vector<DualNum>& y_train, const vector<std::vector<DualNum>>& yhat) {
         DualNum sum(0, 0);
         for (size_t i = 0; i < yhat.size(); i++) {
             sum = sum - Dual::log(yhat[i][static_cast<int>(y_train[i].getReal())]);
@@ -304,7 +306,7 @@ namespace Dual {
         return (sum / (yhat.size()));
     }
 
-    DualNum accuracy(vector<DualNum> y_train, vector<vector<DualNum>> yhat, double threshold = 0.5) {
+    DualNum accuracy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat, const double threshold = 0.5) {
         DualNum correct(0, 0);
 
         for (int i = 0; i < yhat.size(); i++) {
@@ -319,7 +321,7 @@ namespace Dual {
         return correct / yhat.size();
     }
 
-    vector<vector<DualNum>> originalMatMul(vector<vector<DualNum>> A, vector<vector<DualNum>> B) {
+    vector<vector<DualNum>> originalMatMul(const vector<vector<DualNum>>& A, const vector<vector<DualNum>>& B) {
         int Arows = A.size();
         int Acols = A[0].size();
         int Brows = B.size();
@@ -342,7 +344,7 @@ namespace Dual {
         return result;
     }
 
-    void partialMatMul(vector<vector<DualNum>>& A, vector<vector<DualNum>>& B, vector<vector<DualNum>>& result, int start, int end) {
+    void partialMatMul(const vector<vector<DualNum>>& A, const vector<vector<DualNum>>& B, vector<vector<DualNum>>& result, int start, int end) {
         int Arows = A.size();
         int Acols = A[0].size();
         int Brows = B.size();
@@ -372,7 +374,7 @@ namespace Dual {
         }
     }
 
-    vector<vector<DualNum>> matmul(vector<vector<DualNum>>& A, vector<vector<DualNum>>& B) {
+    vector<vector<DualNum>> matmul(const vector<vector<DualNum>>& A, const vector<vector<DualNum>>& B) {
         int Arows = A.size();
         int Acols = A[0].size();
         int Brows = B.size();
@@ -407,7 +409,7 @@ namespace Dual {
         return result;
     }
 
-    void displayMatrix(vector<vector<DualNum>> mat) {
+    void displayMatrix(const vector<vector<DualNum>>& mat) {
         int rows = mat.size();
         int cols = mat[0].size();
 
