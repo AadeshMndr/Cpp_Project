@@ -1,12 +1,12 @@
 #include<iostream>
 #include"dual.h"
 
-DualNum<double> myFunc(DualNum<double> x){
-    return ((x ^ 3));
+DualNum<DualNum<double>> myFunc(DualNum<DualNum<double>> x){
+    return ((x ^ DualNum(3.0)));
 }
 
 int main(){
-    std::cout << evaluatePartialDerivative<double>(myFunc, 1.0).getExpression();
+    std::cout << evaluatePartialDerivative<DualNum<double>>(myFunc, DualNum<double>(1.0, 1.0)).getDual().getExpression();
 
     return 0;
 }
