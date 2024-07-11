@@ -34,7 +34,7 @@ int main() {
 
     auto start = std::chrono::steady_clock::now();
 
-    model.fit(X, Y, lossFunction::mean_squared_error, 0.1, 100);
+    model.fit(X, Y, lossFunction::mean_squared_error, 0.1, 1000);
 
     auto end = std::chrono::steady_clock::now();
 
@@ -43,7 +43,6 @@ int main() {
     yhat = model.predictAll(X);
 
     std::cout << "\nThe loss now is: " << Dual::mse(Y, yhat).getReal() << std::endl;
-
 
     return 0;
 }
