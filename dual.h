@@ -7,17 +7,71 @@
 #include <vector>
 #include <stdexcept>
 #include <thread>
+#include<type_traits>
 
 using std::vector;
 using std::string;
 
 template <typename T = double>
+class DualNum;
+
+namespace Dual {
+
+    DualNum<double> pow(const DualNum<double>& x, const DualNum<double>& y);
+
+    template <typename T>
+    DualNum<T> pow(const DualNum<T>& x, const DualNum<T>& y);
+
+    DualNum<double> exp(const DualNum<double>& x);
+
+    template <typename T>
+    DualNum<T> exp(const DualNum<T>& x);
+
+    DualNum<double> log(const DualNum<double>& x);
+
+    template <typename T>
+    DualNum<T> log(const DualNum<T>& x);
+
+    template <typename T>
+    DualNum<T> relu(DualNum<T> x);
+
+    template <typename T>
+    DualNum<T> tanh(DualNum<T> x);
+
+    template <typename T>
+    DualNum<T> sigmoid(DualNum<T> x);
+
+    template <typename T>
+    DualNum<T> softmax(const vector<DualNum<T>>& X, int index, DualNum<T> sum = DualNum<T>(0, 0));
+
+    template <typename T>
+    DualNum<T> mse(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat);
+
+    template <typename T>
+    DualNum<T> binary_crossentropy(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat);
+
+    template <typename T>
+    DualNum<T> categorical_crossentropy(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat);
+
+    template <typename T>
+    DualNum<T> accuracy(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat, T threshold = 0.5);
+
+    template <typename T>
+    vector<vector<DualNum<T>>> matmul(vector<vector<DualNum<T>>>& A, vector<vector<DualNum<T>>>& B);
+
+    template <typename T>
+    void displayMatrix(const vector<vector<DualNum<T>>>& mat);
+
+}
+
+template <typename T>
 class DualNum {
 private:
     T real;
     T dual;
 
 public:
+
     DualNum(T r = 0, T e = 0) : real(r), dual(e) {}
 
     DualNum(const DualNum& num) : real(num.real), dual(num.dual) {}
@@ -121,23 +175,23 @@ public:
     }
 
     DualNum operator^(const DualNum& num) const {
-        T realTerm = std::pow(real, num.real);
-        return DualNum(realTerm, realTerm * ((dual * num.real / real) + num.dual * std::log(real)));
+        T realTerm = Dual::pow(real, num.real);
+        return DualNum(realTerm, realTerm * ((dual * num.real / real) + num.dual * Dual::log(real)));
     }
 
     void operator^=(const DualNum& num) {
-        T realTerm = std::pow(real, num.real);
+        T realTerm = Dual::pow(real, num.real);
         real = realTerm;
-        dual = realTerm * ((dual * num.real / real) + num.dual * std::log(real));
+        dual = realTerm * ((dual * num.real / real) + num.dual * Dual::log(real));
     }
 
     DualNum operator^(const T k) const {
-        T realTerm = std::pow(real, k);
+        T realTerm = Dual::pow(real, k);
         return DualNum(realTerm, realTerm * ((dual * k / real)));
     }
 
     void operator^=(const T k) {
-        T realTerm = std::pow(real, k);
+        T realTerm = Dual::pow(real, k);
         real = realTerm;
         dual = realTerm * ((dual * k / real));
     }
@@ -151,8 +205,8 @@ DualNum<T> operator*(T k, const DualNum<T>& num) {
 }
 
 template <typename T>
-DualNum<T> operator/(T k, const DualNum<T>& num) {
-    return DualNum<T>(k / num.getReal(), -1 * (k * num.getDual()) / (num.getReal() * num.getReal()));
+DualNum<T> operator*(double k, const DualNum<T>& num) {
+    return DualNum<T>(num.getReal() * k, num.getDual() * k);
 }
 
 template <typename T>
@@ -167,7 +221,7 @@ DualNum<T> operator-(T k, const DualNum<T>& num) {
 
 template <typename T>
 DualNum<T> operator^(T k, const DualNum<T>& num) {
-    T realTerm = std::pow(k, num.getReal());
+    T realTerm = Dual::pow(k, num.getReal()).real;
     return DualNum<T>(realTerm, realTerm * num.getDual() * std::log(k));
 }
 
@@ -177,16 +231,33 @@ namespace Dual {
 
     DualNum<double> pow(const DualNum<double>& x, const DualNum<double>& y) {
         double realTerm = std::pow(x.getReal(), y.getReal());
-        return DualNum<double>(realTerm, realTerm * ((x.getDual() * y.getReal() / x.getReal()) + y.getDual() * std::log(x.getReal())));
+        return DualNum(realTerm, realTerm * ((x.getDual() * y.getReal() / x.getReal()) + y.getDual() * std::log(x.getReal())));
+    }
+
+    template <typename T>
+    DualNum<T> pow(const DualNum<T>& x, const DualNum<T>& y) {
+        T realTerm = Dual::pow(x.getReal(), y.getReal());
+        return DualNum(realTerm, realTerm * ((x.getDual() * y.getReal() / x.getReal()) + y.getDual() * Dual::log(x.getReal())));
     }
 
     DualNum<double> exp(const DualNum<double>& x) {
         double real = std::exp(x.getReal());
-        return DualNum<double>(real, real * x.getDual());
+        return DualNum(real, real * x.getDual());
+    }
+
+    template <typename T>
+    DualNum<T> exp(const DualNum<T>& x) {
+        T real = Dual::exp(x.getReal());
+        return DualNum(real, real * x.getDual());
     }
 
     DualNum<double> log(const DualNum<double>& x) {
-        return DualNum<double>(std::log(x.getReal()), x.getDual() / x.getReal());
+        return DualNum(std::log(x.getReal()), x.getDual() / x.getReal());
+    }
+
+    template <typename T>
+    DualNum<T> log(const DualNum<T>& x) {
+        return DualNum(Dual::log(x.getReal()), x.getDual() / x.getReal());
     }
 
     template <typename T>
@@ -211,7 +282,7 @@ namespace Dual {
     }
 
     template <typename T>
-    DualNum<T> softmax(const std::vector<DualNum<T>>& X, int index, DualNum<T> sum = DualNum<T>(0, 0)) {
+    DualNum<T> softmax(const vector<DualNum<T>>& X, int index, DualNum<T> sum) {
         if (sum.getReal() == 0) {
             for (const auto& elem : X) {
                 sum += Dual::exp(elem);
@@ -221,7 +292,7 @@ namespace Dual {
     }
 
     template <typename T>
-    DualNum<T> mse(const std::vector<DualNum<T>>& y_train, const std::vector<std::vector<DualNum<T>>>& yhat) {
+    DualNum<T> mse(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat) {
         DualNum<T> sum(0, 0);
         for (size_t i = 0; i < yhat.size(); i++) {
             sum += (y_train[i] - yhat[i][0]) * (y_train[i] - yhat[i][0]);
@@ -230,7 +301,7 @@ namespace Dual {
     }
 
     template <typename T>
-    DualNum<T> binary_crossentropy(const std::vector<DualNum<T>>& y_train, const std::vector<std::vector<DualNum<T>>>& yhat) {
+    DualNum<T> binary_crossentropy(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat) {
         DualNum<T> sum(0, 0);
         for (size_t i = 0; i < yhat.size(); i++) {
             sum = sum - (y_train[i] * Dual::log(yhat[i][0]) + (DualNum<T>(1.0) - y_train[i]) * Dual::log(DualNum<T>(1.0) - yhat[i][0]));
@@ -239,7 +310,7 @@ namespace Dual {
     }
 
     template <typename T>
-    DualNum<T> categorical_crossentropy(const std::vector<DualNum<T>>& y_train, const std::vector<std::vector<DualNum<T>>>& yhat) {
+    DualNum<T> categorical_crossentropy(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat) {
         DualNum<T> sum(0, 0);
         for (size_t i = 0; i < yhat.size(); i++) {
             sum = sum - Dual::log(yhat[i][static_cast<int>(y_train[i].getReal())]);
@@ -250,7 +321,7 @@ namespace Dual {
 
 
     template <typename T>
-    DualNum<T> accuracy(const std::vector<DualNum<T>>& y_train, const std::vector<std::vector<DualNum<T>>>& yhat, T threshold = 0.5) {
+    DualNum<T> accuracy(const vector<DualNum<T>>& y_train, const vector<vector<DualNum<T>>>& yhat, T threshold) {
         DualNum<T> correct(0, 0);
         for (size_t i = 0; i < yhat.size(); i++) {
             if ((y_train[i].getReal() == 1 && yhat[i][0].getReal() >= threshold) ||
@@ -262,7 +333,7 @@ namespace Dual {
     }
 
     template <typename T>
-    std::vector<std::vector<DualNum<T>>> originalMatMul(const std::vector<std::vector<DualNum<T>>>& A, const std::vector<std::vector<DualNum<T>>>& B) {
+    vector<vector<DualNum<T>>> originalMatMul(const vector<vector<DualNum<T>>>& A, const vector<vector<DualNum<T>>>& B) {
         size_t Arows = A.size();
         size_t Acols = A[0].size();
         size_t Brows = B.size();
@@ -272,7 +343,7 @@ namespace Dual {
             throw std::runtime_error("The shapes of the Matrices don't match first=(" + std::to_string(Arows) + ", " + std::to_string(Acols) + ") and second = (" + std::to_string(Brows) + ", " + std::to_string(Bcols) + ")");
         }
 
-        std::vector<std::vector<DualNum<T>>> result(Arows, std::vector<DualNum<T>>(Bcols, DualNum<T>(0)));
+        vector<vector<DualNum<T>>> result(Arows, vector<DualNum<T>>(Bcols, DualNum<T>(0)));
 
         for (size_t i = 0; i < Arows; i++) {
             for (size_t j = 0; j < Bcols; j++) {
@@ -286,7 +357,7 @@ namespace Dual {
     }
 
     template <typename T>
-    void partialMatMul(const std::vector<std::vector<DualNum<T>>>& A, const std::vector<std::vector<DualNum<T>>>& B, std::vector<std::vector<DualNum<T>>>& result, size_t start, size_t end) {
+    void partialMatMul(const vector<vector<DualNum<T>>>& A, const vector<vector<DualNum<T>>>& B, vector<vector<DualNum<T>>>& result, size_t start, size_t end) {
         size_t Arows = A.size();
         size_t Acols = A[0].size();
         size_t Brows = B.size();
@@ -317,7 +388,7 @@ namespace Dual {
     }
 
     template <typename T>
-    std::vector<std::vector<DualNum<T>>> matmul(std::vector<std::vector<DualNum<T>>>& A, std::vector<std::vector<DualNum<T>>>& B) {
+    vector<vector<DualNum<T>>> matmul(vector<vector<DualNum<T>>>& A, vector<vector<DualNum<T>>>& B) {
         size_t Arows = A.size();
         size_t Acols = A[0].size();
         size_t Brows = B.size();
@@ -330,8 +401,8 @@ namespace Dual {
             return Dual::originalMatMul(A, B);
         }
 
-        std::vector<std::thread> threads;
-        std::vector<std::vector<DualNum<T>>> result(Arows, std::vector<DualNum<T>>(Bcols, DualNum<T>(0)));
+        vector<std::thread> threads;
+        vector<vector<DualNum<T>>> result(Arows, vector<DualNum<T>>(Bcols, DualNum<T>(0)));
 
         size_t portion_for_each_thread = LargerDimension / no_of_threads;
         size_t start = 0;
@@ -350,7 +421,7 @@ namespace Dual {
     }
 
     template <typename T>
-    void displayMatrix(const std::vector<std::vector<DualNum<T>>>& mat) {
+    void displayMatrix(const vector<vector<DualNum<T>>>& mat) {
         size_t rows = mat.size();
         size_t cols = mat[0].size();
 
@@ -367,7 +438,7 @@ namespace Dual {
 // Some extra functions
 
 template <typename T>
-T partialDerivative(DualNum<T>(*func)(const std::vector<DualNum<T>>&), std::vector<DualNum<T>> params, size_t paramIndex = 0, T at = 1) {
+T partialDerivative(DualNum<T>(*func)(const vector<DualNum<T>>&), vector<DualNum<T>> params, size_t paramIndex = 0, T at = 1) {
     params[paramIndex].setDual(1);
     if (at != 1) {
         params[paramIndex].setReal(at);
@@ -376,7 +447,7 @@ T partialDerivative(DualNum<T>(*func)(const std::vector<DualNum<T>>&), std::vect
 }
 
 template <typename Func, typename T>
-T partialDerivative(Func func, std::vector<DualNum<T>> params, size_t paramIndex = 0, T at = 1) {
+T partialDerivative(Func func, vector<DualNum<T>> params, size_t paramIndex = 0, T at = 1) {
     params[paramIndex].setDual(1);
     if (at != 1) {
         params[paramIndex].setReal(at);
@@ -392,8 +463,9 @@ T partialDerivative(DualNum<T>(*func)(DualNum<T>), T at = 1) {
 }
 
 template <typename T>
-DualNum<T> evaluatePartialDerivative(DualNum<T>(*func)(DualNum<T>), T at = 1) {
-    DualNum<T> x(at, 1);
+DualNum<T> evaluatePartialDerivative(DualNum<T>(*func)(DualNum<T>), T at = 1.0) {
+    T dualpart = 1.0;
+    DualNum<T> x(at, dualpart);
     return ((*func)(x));
 }
 
