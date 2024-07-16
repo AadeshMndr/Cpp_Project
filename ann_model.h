@@ -228,12 +228,13 @@ public:
         for (int i = start; i < end; i++) {
 
             //Gradient descent algorithm with momentum and velocity.
-            double gradient = partialDerivative(loss, parameters, i, parameters[i].getReal());
+            double gradient = partialDerivative(loss, parameters, i, parameters[i].getReal());   //<---- Only here is the loss function actually executed so that we get f(x) along with f'(x)
             velocity[i] = momentum * velocity[i] - learning_rate * gradient;
             newParameters[i] = parameters[i] + velocity[i];
         }
     }
 
+    //Here we run the epochs. (ie: predict, calculate loss and get parameter updates, actually make those updates, calculate loss / accuracy for display purposes, and do it all over again)
     void fit(const vector<vector<DualNum>>& X_train, const vector<DualNum>& y_train, lossFunction lossFunc = lossFunction::mean_squared_error, double learning_rate = 0.01, int epochs = 100, int verbose = 2) {
         if (y_train.size() != X_train.size()) {
             throw std::runtime_error("The shape of the X_train and y_train don't match !");
