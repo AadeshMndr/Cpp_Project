@@ -5,6 +5,7 @@
 
 #include "ann_model.h"
 #include "dual.h"
+// #include "rough.h"
 
 #include <iomanip>
 
@@ -65,7 +66,7 @@ int main() {
     //fitting the model and getting the results
     vector<vector<DualNum>> yhat = model.predictAll(X);
 
-    std::cout << "\nThe current loss is: " << Dual::mse(Y, yhat).getReal() << std::endl;
+    std::cout << "\nThe current loss is: " << Dual::binary_crossentropy(Y, yhat).getReal() << std::endl;
 
     vector<vector<DualNum>> y_hat_test = model.predictAll(X_test);
 
@@ -88,7 +89,7 @@ int main() {
 
     yhat = model.predictAll(X);
 
-    std::cout << "\nThe loss now is: " << Dual::mse(Y, yhat).getReal() << " and the accuracy is " << Dual::accuracy(Y, yhat).getReal() << std::endl;
+    std::cout << "\nThe loss now is: " << Dual::binary_crossentropy(Y, yhat).getReal() << " and the accuracy is " << Dual::accuracy(Y, yhat).getReal() << std::endl;
 
     y_hat_test = model.predictAll(X_test);
 

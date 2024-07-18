@@ -7,6 +7,7 @@
 #include<stdexcept>
 #include<thread>
 #include "dual.h"
+// #include "rough.h"
 
 using std::vector;
 
@@ -241,7 +242,7 @@ public:
         }
 
         // The loss function as a lambda function
-        auto loss = [X_train, y_train, this, lossFunc](vector<DualNum> params) mutable {
+        auto loss = [X_train, y_train, this, lossFunc](vector<DualNum> params) {
 
             //Predict for all data.
             vector<vector<DualNum>> yhat = this->predictAll(X_train, params);
@@ -254,7 +255,7 @@ public:
                     result += (y_train[i] - yhat[i][0]) * (y_train[i] - yhat[i][0]);
                 }
                 else if (lossFunc == lossFunction::binary_crossentropy) {
-                    result -= ((y_train[i] * Dual::log(yhat[i][0]) + (1 - y_train[i]) * Dual::log(1 - yhat[i][0])));
+                    result -= ((y_train[i] * Dual::log(yhat[i][0]) + (1.0 - y_train[i]) * Dual::log(1.0 - yhat[i][0])));
                 }
                 else if (lossFunc == lossFunction::categorical_crossentropy) {
                     result -= Dual::log(yhat[i][y_train[i].getReal()]);
