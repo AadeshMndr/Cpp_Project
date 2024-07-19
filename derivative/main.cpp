@@ -177,7 +177,6 @@ int main()
         }
 
         if (calculateButtonClicked) {
-            cout << equationText << variableFloat << endl;
             get_derivative(equationText, variableFloat);
             
         }
