@@ -7,6 +7,7 @@
 #include<stdexcept>
 #include<thread>
 #include "dual.h"
+// #include "rough.h"
 
 using std::vector;
 
@@ -29,7 +30,11 @@ private:
     vector<activations> activationFunctions;        // to store the "enums of the activation functions" applied to each layer 
     vector<int> nodes;                              // to store the "no of nodes" in each layer
     vector<double> velocity;                        // to store the velocity value for each parameter
-    double momentum = 0.1;          
+    double momentum = 0.1;
+    vector<double> lossHistory;
+    vector<double> accuracyHistory;
+    vector<double> lossHistory_val;
+    vector<double> accuracyHistory_val;
 
 public:
     ANN_Model(int inputFeatures, vector<int> No_of_Nodes, vector<activations> activationFunctionName) {
@@ -69,7 +74,23 @@ public:
         velocity = vector<double>(parameters.size(), 0);
     }
 
-    vector<DualNum>& getParameters(){   //returns by reference so cannot be made a const member function
+    vector<double> getLossHistory() {
+        return lossHistory;
+    }
+
+    vector<double> getAccuracyHistory() {
+        return accuracyHistory;
+    }
+
+    vector<double> getValLossHistory() {
+        return lossHistory_val;
+    }
+
+    vector<double> getValAccuracyHistory() {
+        return accuracyHistory_val;
+    }
+
+    vector<DualNum>& getParameters() {   //returns by reference so cannot be made a const member function
         return parameters;
     }
 
@@ -79,10 +100,10 @@ public:
 
     // X is supposed to be in the form:
     /*        eg:  for input = 3
-        (feature_1, feature_2 feature_3)   -> A single input vector. 
+        (feature_1, feature_2 feature_3)   -> A single input vector.
     */
     vector<DualNum> predict(const vector<DualNum>& X, vector<DualNum> params = {}) const {
-        
+
         // If it is specified some parameters then it works only with those parameters,
         // else it works with all parameters available
         if (params.size() == 0) {
@@ -173,10 +194,10 @@ public:
 
 
     /*
-        The data matrix is like: 
+        The data matrix is like:
 
             eg: for inputs = 3, and no of data = 6.
-        
+
         [
             (feature_1, feature_2, feature_3), --> a single input vector
             (feature_1, feature_2, feature_3), --> a single input vector
@@ -186,7 +207,7 @@ public:
             (feature_1, feature_2, feature_3), --> a single input vector
         ]
     */
-   // This function runs predict for all data. (all input vectors in data)
+    // This function runs predict for all data. (all input vectors in data)
     vector<vector<DualNum>> predictAll(const vector<vector<DualNum>>& data, vector<DualNum> params = {}) {
         if (data[0].size() != inputs) {
             throw std::runtime_error("The shape of the inputs isn't right!");
@@ -204,7 +225,7 @@ public:
         // so it will look like:
         /*
                 eg: for data = 6
-            
+
             [
                 output vector,
                 output vector,
@@ -215,7 +236,7 @@ public:
             ]
         */
 
-       //the size of the output vector = no of nodes in the last layer
+        //the size of the output vector = no of nodes in the last layer
 
         return entireOutputs;
     }
@@ -235,13 +256,13 @@ public:
     }
 
     //Here we run the epochs. (ie: predict, calculate loss and get parameter updates, actually make those updates, calculate loss / accuracy for display purposes, and do it all over again)
-    void fit(const vector<vector<DualNum>>& X_train, const vector<DualNum>& y_train, lossFunction lossFunc = lossFunction::mean_squared_error, double learning_rate = 0.01, int epochs = 100, int verbose = 2) {
+    void fit(const vector<vector<DualNum>>& X_train, const vector<DualNum>& y_train, const vector<vector<DualNum>>& X_val = {}, const vector<DualNum>& y_val = {}, lossFunction lossFunc = lossFunction::mean_squared_error, double learning_rate = 0.01, int epochs = 100, int verbose = 2) {
         if (y_train.size() != X_train.size()) {
             throw std::runtime_error("The shape of the X_train and y_train don't match !");
         }
 
         // The loss function as a lambda function
-        auto loss = [X_train, y_train, this, lossFunc](vector<DualNum> params) mutable {
+        auto loss = [X_train, y_train, this, lossFunc](vector<DualNum> params) {
 
             //Predict for all data.
             vector<vector<DualNum>> yhat = this->predictAll(X_train, params);
@@ -254,7 +275,7 @@ public:
                     result += (y_train[i] - yhat[i][0]) * (y_train[i] - yhat[i][0]);
                 }
                 else if (lossFunc == lossFunction::binary_crossentropy) {
-                    result -= ((y_train[i] * Dual::log(yhat[i][0]) + (1 - y_train[i]) * Dual::log(1 - yhat[i][0])));
+                    result -= ((y_train[i] * Dual::log(yhat[i][0]) + (1.0 - y_train[i]) * Dual::log(1.0 - yhat[i][0])));
                 }
                 else if (lossFunc == lossFunction::categorical_crossentropy) {
                     result -= Dual::log(yhat[i][y_train[i].getReal()]);
@@ -267,6 +288,11 @@ public:
 
         // check no of threads
         int no_of_threads = std::thread::hardware_concurrency();
+
+        accuracyHistory.clear();
+        lossHistory.clear();
+        lossHistory_val.clear();
+        accuracyHistory_val.clear();
 
         for (int epoch = 1; epoch <= epochs; epoch++) {
             //Initialize an empty parameter list container, to later store the updated values
@@ -310,16 +336,53 @@ public:
 
             // calculate the loss again for displaying purposes
             double loss_value = 0;
+
+            double loss_value_val = 0;
+
+            vector<vector<DualNum>> yhat = this->predictAll(X_train);
+            vector<vector<DualNum>> yhat_val;
+
+            if (X_val.size() != 0) {
+                yhat_val = this->predictAll(X_val);
+            }
+
             switch (lossFunc) {
             case lossFunction::mean_squared_error:
-                loss_value = Dual::mse(y_train, this->predictAll(X_train)).getReal();
+                loss_value = Dual::mse(y_train, yhat).getReal();
+                if (X_val.size() != 0) {
+                    loss_value_val = Dual::mse(y_val, yhat_val).getReal();
+                }
                 break;
             case lossFunction::binary_crossentropy:
-                loss_value = Dual::binary_crossentropy(y_train, this->predictAll(X_train)).getReal();
+                loss_value = Dual::binary_crossentropy(y_train, yhat).getReal();
+                if (X_val.size() != 0) {
+                    loss_value_val = Dual::binary_crossentropy(y_val, yhat_val).getReal();
+                }
                 break;
             case lossFunction::categorical_crossentropy:
-                loss_value = Dual::categorical_crossentropy(y_train, this->predictAll(X_train)).getReal();
+                loss_value = Dual::categorical_crossentropy(y_train, yhat).getReal();
+                if (X_val.size() != 0) {
+                    loss_value_val = Dual::categorical_crossentropy(y_val, yhat_val).getReal();
+                }
                 break;
+            }
+
+            lossHistory.push_back(loss_value);
+            if (X_val.size() != 0) {
+                lossHistory_val.push_back(loss_value_val);
+            }
+
+
+            double accuracyValue;
+            double accuracyValue_val;
+            if (lossFunc != lossFunction::mean_squared_error) {
+                accuracyValue = Dual::accuracy(y_train, yhat).getReal();
+                accuracyHistory.push_back(accuracyValue);
+                if (X_val.size() != 0) {
+                    accuracyValue_val = Dual::accuracy(y_val, yhat_val).getReal();
+
+                    accuracyHistory_val.push_back(accuracyValue_val);
+                }
             }
 
             if (verbose == 2) {
@@ -329,8 +392,14 @@ public:
                 std::cout << "\n Epoch no: " << epoch << " completed!" << std::endl;
             }
             else if (verbose == 3) {
-                vector<vector<DualNum>> yhat = this->predictAll(X_train);
-                std::cout << "\n Epoch no: " << epoch << " completed!, Loss = " << loss_value << " accuracy = " << Dual::accuracy(y_train, yhat).getReal() << std::endl;
+
+                if (X_val.size() != 0) {
+                    std::cout << "\n Epoch no: " << epoch << " completed! \n Training Loss = " << loss_value << " Validation Loss = " << loss_value_val << "\n Training accuracy = " << accuracyValue << " Validation accuracy = " << accuracyValue_val << "\n" << std::endl;
+                }
+                else {
+                    std::cout << "\n Epoch no: " << epoch << " completed! \n Loss = " << loss_value << " accuracy = " << accuracyValue << std::endl;
+                }
+
             }
 
         }
