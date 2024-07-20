@@ -46,7 +46,7 @@ public:
         screenWidth = sw;
         screenHeight = sh;
 
-        if (!font.loadFromFile("fonts/arial/ARIAL.TTF")) {
+        if (!font.loadFromFile("Utils/fonts/arial/ARIAL.TTF")) {
             std::cerr << "Failed to load font!" << std::endl;
             return;
         }

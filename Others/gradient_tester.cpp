@@ -1,5 +1,5 @@
 #include<iostream>
-#include"rough.h"
+#include "../Dual_Library/dual.h"
 
 DualNum potential(vector<DualNum> params){
     return (((params[0])^2) + params[1] + params[2]);

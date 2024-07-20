@@ -1,6 +1,6 @@
 #include<iostream>
 #include<iomanip>
-#include"extendedDual.h"
+#include"../Dual_Library/extendedDual.h"
 #include<limits>
 
 ExtendedDualNum someFunc(ExtendedDualNum x){

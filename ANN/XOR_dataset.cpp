@@ -4,9 +4,8 @@
 #include<chrono>
 
 #include "ann_model.h"
-#include "dual.h"
-#include "grapher.h"
-// #include "rough.h"
+#include "../Dual_Library/dual.h"
+#include "../Utils/grapher.h"
 
 #include <iomanip>
 

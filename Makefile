@@ -8,17 +8,17 @@ CXXFLAGS = -g -IC:/SFML-2.6.1/include
 LDFLAGS = -LC:/SFML-2.6.1/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 # Source files for program1
-SRCS_XOR_DATA = XOR_dataset.cpp dual.cpp
+SRCS_XOR_DATA = ANN/XOR_dataset.cpp Dual_Library/dual.cpp
 # Object files for program1
 OBJS_XOR_DATA = $(SRCS_XOR_DATA:.cpp=.o)
 
 #source files for main -> testing
-SRCS_MAIN = main.cpp
+# SRCS_MAIN = main.cpp
 #object files for main -> testing
 # OBJS_MAIN = $(SRCS_MAIN:.cpp=.o)
 
 # Source files for program2
-SRCS_REG = Regression.cpp dual.cpp
+SRCS_REG = ANN/Regression.cpp Dual_Library/dual.cpp
 # Object files for program2
 OBJS_REG = $(SRCS_REG:.cpp=.o)
 

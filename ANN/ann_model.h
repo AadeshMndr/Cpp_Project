@@ -6,7 +6,7 @@
 #include<random>
 #include<stdexcept>
 #include<thread>
-#include "dual.h"
+#include "../Dual_Library/dual.h"
 // #include "rough.h"
 
 using std::vector;
