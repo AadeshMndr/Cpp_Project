@@ -386,7 +386,11 @@ public:
             }
 
             if (verbose == 2) {
-                std::cout << "\n Epoch no: " << epoch << " completed!, Loss = " << loss_value << std::endl;
+                if (X_val.size() != 0 ){
+                    std::cout << "\n Epoch no: " << epoch << " completed! \n Training Loss = " << loss_value << " Validation Loss = " << loss_value_val << "\n" << std::endl;
+                } else {
+                    std::cout << "\n Epoch no: " << epoch << " completed!, Loss = " << loss_value << std::endl;
+                }
             }
             else if (verbose == 1) {
                 std::cout << "\n Epoch no: " << epoch << " completed!" << std::endl;

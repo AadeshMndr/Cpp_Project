@@ -5,6 +5,7 @@
 
 #include "ann_model.h"
 #include "dual.h"
+#include "grapher.h"
 // #include "rough.h"
 
 #include <iomanip>
@@ -169,6 +170,30 @@ int main() {
     std::cout << "\nThe point (-, +, +) should be 0, the model gives = " << y_hat_test[5][0].getReal() << std::endl;
     std::cout << "\nThe point (+, +, -) should be 0, the model gives = " << y_hat_test[6][0].getReal() << std::endl;
     std::cout << "\nThe point (-, -, -) should be 0, the model gives = " << y_hat_test[7][0].getReal() << std::endl;
+
+    Graph plotter;
+
+    char x[] = "Epochs";
+    char y[] = "Loss";
+
+    plotter.setLegend({"Training Loss", "Validation Loss"}, {MyColors::point1, MyColors::point2});
+
+    plotter.pushColoredPoints(model.getLossHistory(), MyColors::point1);
+    plotter.pushColoredValPoints(model.getValLossHistory(), MyColors::point2);
+
+    plotter.start(x, y);
+
+    Graph accuracyPlotter;
+
+    char accX[] = "Epochs";
+    char accY[] = "Accuracy";
+
+    accuracyPlotter.setLegend({"Training Accuracy", "Validation Accuracy"}, {MyColors::point1, MyColors::point2});
+
+    accuracyPlotter.pushColoredPoints(model.getAccuracyHistory(), MyColors::point1);
+    accuracyPlotter.pushColoredValPoints(model.getValAccuracyHistory(), MyColors::point2);
+
+    accuracyPlotter.start(accX, accY);
 
     return 0;
 }
