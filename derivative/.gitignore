@@ -1,0 +1,6 @@
+.vscode
+*.o
+*.out
+*.gch
+*output
+*.txt
