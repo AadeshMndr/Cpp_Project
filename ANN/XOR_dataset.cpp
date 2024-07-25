@@ -123,12 +123,14 @@ int main() {
     //model
     ANN_Model model(3, vector<int> {10, 10, 1}, vector<activations> { activations::relu, activations::relu, activations::sigmoid});
 
+    // model.load("XOR_Storage");
+
     //fitting the model and getting the results
     vector<vector<DualNum>> yhat = model.predictAll(X_train);
     vector<vector<DualNum>> yhat_val = model.predictAll(X_val);
 
-    std::cout << "\nThe current Training loss is: " << Dual::binary_crossentropy(Y_train, yhat).getReal() << std::endl;
-    std::cout << "\nThe current Validation loss is: " << Dual::binary_crossentropy(Y_val, yhat_val).getReal() << std::endl;
+    std::cout << "\nThe Training loss now is: " << Dual::binary_crossentropy(Y_train, yhat).getReal() << " and the accuracy is " << Dual::accuracy(Y_train, yhat).getReal() << std::endl;
+    std::cout << "\nThe Validation loss now is: " << Dual::binary_crossentropy(Y_val, yhat_val).getReal() << " and the accuracy is " << Dual::accuracy(Y_val, yhat_val).getReal() << std::endl;
 
     vector<vector<DualNum>> y_hat_test = model.predictAll(X_test);
 
@@ -141,13 +143,15 @@ int main() {
     std::cout << "\nThe point (+, +, -) should be 0, the model gives = " << y_hat_test[6][0].getReal() << std::endl;
     std::cout << "\nThe point (-, -, -) should be 0, the model gives = " << y_hat_test[7][0].getReal() << std::endl;
 
-    char temp;
-    std::cout << "\n\nPress Enter to start training: \n\n";
-    std::cin >> temp;
+    // char temp;
+    // std::cout << "\n\nPress Enter to start training: \n\n";
+    // std::cin >> temp;
 
     auto start = std::chrono::steady_clock::now();
 
     model.fit(X_train, Y_train, X_val, Y_val, lossFunction::binary_crossentropy, 0.1, 1000, 3);
+
+    // model.save("XOR_Storage");
 
     auto end = std::chrono::steady_clock::now();
 
@@ -175,19 +179,21 @@ int main() {
     char x[] = "Epochs";
     char y[] = "Loss";
 
-    plotter.setLegend({"Training Loss", "Validation Loss"}, {MyColors::point1, MyColors::point2});
+    plotter.setLegend({ "Training Loss", "Validation Loss" }, { MyColors::point1, MyColors::point2 });
 
     plotter.pushColoredPoints(model.getLossHistory(), MyColors::point1);
     plotter.pushColoredValPoints(model.getValLossHistory(), MyColors::point2);
 
     plotter.start(x, y);
 
+    // std::cout << "Number -> " << model.getValAccuracyHistory().size() << "\n\n";
+
     Graph accuracyPlotter;
 
     char accX[] = "Epochs";
     char accY[] = "Accuracy";
 
-    accuracyPlotter.setLegend({"Training Accuracy", "Validation Accuracy"}, {MyColors::point1, MyColors::point2});
+    accuracyPlotter.setLegend({ "Training Accuracy", "Validation Accuracy" }, { MyColors::point1, MyColors::point2 });
 
     accuracyPlotter.pushColoredPoints(model.getAccuracyHistory(), MyColors::point1);
     accuracyPlotter.pushColoredValPoints(model.getValAccuracyHistory(), MyColors::point2);

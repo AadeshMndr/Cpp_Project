@@ -6,6 +6,7 @@
 #include<random>
 #include<stdexcept>
 #include<thread>
+#include<fstream>
 #include "../Dual_Library/dual.h"
 // #include "rough.h"
 
@@ -289,10 +290,11 @@ public:
         // check no of threads
         int no_of_threads = std::thread::hardware_concurrency();
 
-        accuracyHistory.clear();
-        lossHistory.clear();
-        lossHistory_val.clear();
-        accuracyHistory_val.clear();
+        // Added previously for testing purposes
+        // accuracyHistory.clear();
+        // lossHistory.clear();
+        // lossHistory_val.clear();
+        // accuracyHistory_val.clear();
 
         for (int epoch = 1; epoch <= epochs; epoch++) {
             //Initialize an empty parameter list container, to later store the updated values
@@ -386,9 +388,10 @@ public:
             }
 
             if (verbose == 2) {
-                if (X_val.size() != 0 ){
+                if (X_val.size() != 0) {
                     std::cout << "\n Epoch no: " << epoch << " completed! \n Training Loss = " << loss_value << " Validation Loss = " << loss_value_val << "\n" << std::endl;
-                } else {
+                }
+                else {
                     std::cout << "\n Epoch no: " << epoch << " completed!, Loss = " << loss_value << std::endl;
                 }
             }
@@ -406,6 +409,154 @@ public:
 
             }
 
+        }
+    }
+
+    void save(const string filename) const {
+        std::ofstream fout("Data/" + filename + "_parameters.txt", std::ios::binary);
+
+        if (!fout) {
+            throw std::runtime_error("Unable to open the file for saving....");
+        }
+
+        fout.write(reinterpret_cast<const char*>(parameters.data()), parameters.size() * sizeof(DualNum));
+
+        fout.close();
+
+        fout.open("Data/" + filename + "_lossHistory.txt", std::ios::binary);
+
+        if (!fout) {
+            throw std::runtime_error("Unable to open the file for saving....");
+        }
+
+        size_t lossHistorySize = lossHistory.size();
+
+        fout.write(reinterpret_cast<const char*>(&lossHistorySize), sizeof(lossHistorySize));
+
+        fout.write(reinterpret_cast<const char*>(lossHistory.data()), lossHistorySize * sizeof(double));
+
+        fout.close();
+
+        fout.open("Data/" + filename + "_ValLossHistory.txt", std::ios::binary);
+
+        if (!fout) {
+            throw std::runtime_error("Unable to open the file for saving....");
+        }
+
+        size_t valLossHistorySize = lossHistory_val.size();
+
+        fout.write(reinterpret_cast<const char*>(&valLossHistorySize), sizeof(valLossHistorySize));
+
+        fout.write(reinterpret_cast<const char*>(lossHistory_val.data()), valLossHistorySize * sizeof(double));
+
+        fout.close();
+
+        if (accuracyHistory.size() != 0) {
+
+            fout.open("Data/" + filename + "_Accuracy.txt", std::ios::binary);
+
+            if (!fout) {
+                throw std::runtime_error("Unable to open the file for saving....");
+            }
+
+            size_t accuracySize = accuracyHistory.size();
+
+            fout.write(reinterpret_cast<const char*>(&accuracySize), sizeof(accuracySize));
+
+            fout.write(reinterpret_cast<const char*>(accuracyHistory.data()), accuracySize * sizeof(double));
+
+            fout.close();
+
+            fout.open("Data/" + filename + "_ValAccuracy.txt", std::ios::binary);
+
+            if (!fout) {
+                throw std::runtime_error("Unable to open the file for saving....");
+            }
+
+            size_t valAccuracySize = accuracyHistory_val.size();
+
+            fout.write(reinterpret_cast<const char*>(&valAccuracySize), sizeof(valAccuracySize));
+
+            fout.write(reinterpret_cast<const char*>(accuracyHistory_val.data()), valAccuracySize * sizeof(double));
+
+            fout.close();
+        }
+    }
+
+    void load(const string filename) {
+        std::ifstream fin("Data/" + filename + "_parameters.txt", std::ios::binary);
+
+        if (!fin) {
+            throw std::runtime_error("Unable to open the file for preloading....");
+        }
+
+        fin.read(reinterpret_cast<char*>(parameters.data()), parameters.size() * sizeof(DualNum));
+
+        fin.close();
+
+        fin.open("Data/" + filename + "_lossHistory.txt", std::ios::binary);
+
+        if (!fin) {
+            throw std::runtime_error("Unable to open the file for preloading....");
+        }
+
+        size_t lossHistorySize;
+
+        fin.read(reinterpret_cast<char*>(&lossHistorySize), sizeof(lossHistorySize));
+
+        // std::cout << "\n-----Current epochs = " << lossHistorySize << "\n\n";
+
+        lossHistory.resize(lossHistorySize);
+
+        fin.read(reinterpret_cast<char*>(lossHistory.data()), lossHistorySize * sizeof(double));
+
+        fin.close();
+
+        fin.open("Data/" + filename + "_ValLossHistory.txt", std::ios::binary);
+
+        if (!fin) {
+            throw std::runtime_error("Unable to open the file for preloading....");
+        }
+
+        size_t valLossHistorySize;
+
+        fin.read(reinterpret_cast<char*>(&valLossHistorySize), sizeof(valLossHistorySize));
+
+        lossHistory_val.resize(valLossHistorySize);
+
+        fin.read(reinterpret_cast<char*>(lossHistory_val.data()), valLossHistorySize * sizeof(double));
+
+        fin.close();
+
+
+        fin.open("Data/" + filename + "_Accuracy.txt", std::ios::binary);
+
+        if (fin) {
+
+            size_t accuracySize;
+
+            fin.read(reinterpret_cast<char*>(&accuracySize), sizeof(accuracySize));
+
+            accuracyHistory.resize(accuracySize);
+
+            fin.read(reinterpret_cast<char*>(accuracyHistory.data()), accuracySize * sizeof(double));
+
+            fin.close();
+        }
+
+        fin.open("Data/" + filename + "_ValAccuracy.txt", std::ios::binary);
+
+        if (fin) {
+
+            size_t valAccuracySize;
+
+            fin.read(reinterpret_cast<char*>(&valAccuracySize), sizeof(valAccuracySize));
+
+            accuracyHistory_val.resize(valAccuracySize);
+
+            fin.read(reinterpret_cast<char*>(accuracyHistory_val.data()), valAccuracySize * sizeof(double));
+
+            fin.close();
         }
     }
 };

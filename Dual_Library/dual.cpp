@@ -181,6 +181,26 @@ void DualNum::operator ^= (const long double& k) {
     dual = tempDual;
 }
 
+bool DualNum::operator == (const DualNum& num) const {
+    return real == num.real;
+}
+
+bool DualNum::operator > (const DualNum& num) const {
+    return real > num.real;
+}
+
+bool DualNum::operator < (const DualNum& num) const {
+    return real < num.real;
+}
+
+bool DualNum::operator >= (const DualNum& num) const {
+    return real >= num.real;
+}
+
+bool DualNum::operator <= (const DualNum& num) const {
+    return real >= num.real;
+}
+
 // Normal Numbers Operator Overloading
 DualNum operator * (const long double& k, const DualNum& num) {
     return DualNum(k * num.getReal(), k * num.getDual());
@@ -202,6 +222,12 @@ DualNum operator ^ (const long double& k, const DualNum& num) {
     long double realTerm = std::pow(k, num.getReal());
 
     return DualNum(realTerm, realTerm * num.getDual() * std::log(k));
+}
+
+std::ostream& operator << (std::ostream& os, const DualNum& num){
+    os << num.getExpression();
+
+    return os;
 }
 
 // Dual standard functions

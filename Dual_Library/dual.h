@@ -49,6 +49,12 @@ public:
     void operator ^= (const DualNum& num);
     DualNum operator ^ (const long double& k) const;
     void operator ^= (const long double& k);
+
+    bool operator == (const DualNum& num) const;
+    bool operator > (const DualNum& num) const;
+    bool operator < (const DualNum& num) const;
+    bool operator >= (const DualNum& num) const;
+    bool operator <= (const DualNum& num) const;
 };
 
 // Normal Numbers Operator Overloading
@@ -57,6 +63,7 @@ DualNum operator / (const long double& k, const DualNum& num);
 DualNum operator + (const long double& k, const DualNum& num);
 DualNum operator - (const long double& k, const DualNum& num);
 DualNum operator ^ (const long double& k, const DualNum& num);
+std::ostream& operator << (std::ostream& os, const DualNum& num);
 
 // Some standard functions
 namespace Dual {
@@ -92,6 +99,7 @@ long double partialDerivative(Func func, vector<DualNum> params, int paramIndex 
 }
 
 long double partialDerivative(DualNum(*func)(DualNum), long double at = 1);
+
 DualNum evaluatePartialDerivative(DualNum(*func)(DualNum), long double at = 1);
 
 enum class coordinate_system { cartesian, cylindrical, spherical };

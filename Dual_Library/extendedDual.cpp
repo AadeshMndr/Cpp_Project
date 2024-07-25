@@ -776,6 +776,25 @@ ExtendedDualNum operator ^ (const double n, const ExtendedDualNum& num) {
 //     return data[0][0];
 // }
 
+bool ExtendedDualNum::operator == (const ExtendedDualNum& num) const {
+    return data[0][0] == num.data[0][0];
+}
+
+bool ExtendedDualNum::operator > (const ExtendedDualNum& num) const {
+    return data[0][0] > num.data[0][0];
+}
+
+bool ExtendedDualNum::operator < (const ExtendedDualNum& num) const {
+    return data[0][0] < num.data[0][0];
+}
+
+bool ExtendedDualNum::operator >= (const ExtendedDualNum& num) const {
+    return data[0][0] >= num.data[0][0];
+}
+
+bool ExtendedDualNum::operator <= (const ExtendedDualNum& num) const {
+    return data[0][0] >= num.data[0][0];
+}
 
 //default int i = 1;
 double ExtendedDualNum::getPartialDerivative(int i) const {
@@ -787,4 +806,10 @@ double ExtendedDualNum::getPartialDerivative(int i) const {
     }
 
     return data[0][i] * ExtendedDual::factorial(i);
+}
+
+std::ostream& operator << (std::ostream &os, const ExtendedDualNum& num){
+    num.displayData();
+
+    return os;
 }

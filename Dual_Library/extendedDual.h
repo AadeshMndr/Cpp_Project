@@ -108,7 +108,15 @@ public:
 
     // operator double();
 
+    bool operator == (const ExtendedDualNum& num) const;
+    bool operator > (const ExtendedDualNum& num) const;
+    bool operator < (const ExtendedDualNum& num) const;
+    bool operator >= (const ExtendedDualNum& num) const;
+    bool operator <= (const ExtendedDualNum& num) const;
+
     double getPartialDerivative(int i = 1) const;
 };
+
+std::ostream& operator << (std::ostream &os, const ExtendedDualNum& num);
 
 #endif

@@ -19,8 +19,8 @@ int main() {
     vector<vector<DualNum>> X;
 
     for (int i = 0; i < 100; i++) {
-        Y.push_back(DualNum(std::sin((float)i / 10), 0));
-        vector<DualNum> vectX(1, DualNum((float)i / 10, 0));
+        Y.push_back(DualNum(std::sin((float)i / 9), 0));
+        vector<DualNum> vectX(1, DualNum((float)i / 9, 0));
 
         X.push_back(vectX);
     }
@@ -43,6 +43,7 @@ int main() {
     //model
     ANN_Model model(1, vector<int> {16, 7, 5, 1}, vector<activations> { activations::relu, activations::relu, activations::sigmoid, activations::linear});
 
+    model.load("SineWave");
 
     //fitting the model and getting the results
     vector<vector<DualNum>> yhat = model.predictAll(X);
@@ -51,7 +52,9 @@ int main() {
 
     auto start = std::chrono::steady_clock::now();
 
-    model.fit(X, Y, X_val, Y_val, lossFunction::mean_squared_error, 0.1, 1000, 2);
+    // model.fit(X, Y, X_val, Y_val, lossFunction::mean_squared_error, 0.01, 500, 2);
+
+    // model.save("SineWave");
 
     auto end = std::chrono::steady_clock::now();
 
