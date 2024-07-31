@@ -18,7 +18,7 @@ SRCS_REG = ANN/Regression.cpp Dual_Library/dual.cpp
 OBJS_REG = $(SRCS_REG:.cpp=.o)
 
 # Source files for program2
-SRCS_GRAD = Others/gradient_tester.cpp Dual_Library/dual.cpp
+SRCS_GRAD = Others/gradient_tester.cpp Dual_Library/extendedDual.cpp
 # Object files for program2
 OBJS_GRAD = $(SRCS_GRAD:.cpp=.o)
 

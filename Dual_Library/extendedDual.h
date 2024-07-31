@@ -43,6 +43,15 @@ namespace ExtendedDual {
     //Extra
     vector<double> partialDerivative(ExtendedDualNum (*func)(vector<ExtendedDualNum>), vector<ExtendedDualNum> params, int paramIndex = 0);
     vector<double> partialDerivative(ExtendedDualNum (*func)(ExtendedDualNum), double at = 1, int order = 3);
+    ExtendedDualNum evaluatePartialDerivative(ExtendedDualNum(*func)(ExtendedDualNum), long double at = 1);
+
+
+    enum class coordinate_system { cartesian, cylindrical, spherical };
+    using VectorFunctionPointer = ExtendedDualNum(*)(vector<ExtendedDualNum>);
+    vector<double> gradient(VectorFunctionPointer, vector<ExtendedDualNum> at, coordinate_system system = coordinate_system::cartesian);
+    double laplacian(VectorFunctionPointer, vector<ExtendedDualNum> at, coordinate_system system = coordinate_system::cartesian);
+    vector<vector<double>> jacobian(vector<ExtendedDual::VectorFunctionPointer>, vector<ExtendedDualNum> at);
+    double solveUsingNewtonRaphson(ExtendedDualNum(*func)(ExtendedDualNum), double initialGuess = 1, int max_no_of_iterations = 10000);
 };
 
 class ExtendedDualNum {

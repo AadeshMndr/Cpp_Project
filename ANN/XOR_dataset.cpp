@@ -123,7 +123,7 @@ int main() {
     //model
     ANN_Model model(3, vector<int> {10, 10, 1}, vector<activations> { activations::relu, activations::relu, activations::sigmoid});
 
-    // model.load("XOR_Storage");
+    model.load("XOR_Storage");
 
     //fitting the model and getting the results
     vector<vector<DualNum>> yhat = model.predictAll(X_train);
@@ -149,7 +149,7 @@ int main() {
 
     auto start = std::chrono::steady_clock::now();
 
-    model.fit(X_train, Y_train, X_val, Y_val, lossFunction::binary_crossentropy, 0.1, 1000, 3);
+    // model.fit(X_train, Y_train, X_val, Y_val, lossFunction::binary_crossentropy, 0.1, 1000, 3);
 
     // model.save("XOR_Storage");
 

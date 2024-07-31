@@ -138,68 +138,68 @@ ExtendedDualNum ExtendedDual::tanh(const ExtendedDualNum& num) {
     return ((ExtendedDual::exp(num) - ExtendedDual::exp(-1 * num)) / (ExtendedDual::exp(num) + ExtendedDual::exp(-1 * num)));
 }
 
-ExtendedDualNum ExtendedDual::asin(const ExtendedDualNum& num){
-    
+ExtendedDualNum ExtendedDual::asin(const ExtendedDualNum& num) {
+
     int order = num.getSize();
 
     double real = num.getNum();
 
     ExtendedDualNum dualMat = num.getDualMatrix();
 
-    vector<double> derivatives = ExtendedDual::partialDerivative(derivativeOfASin, real, order-1);
+    vector<double> derivatives = ExtendedDual::partialDerivative(derivativeOfASin, real, order - 1);
 
     ExtendedDualNum result(std::asin(real), order);
 
-    for (int i = 1; i < order; i++){
-        result += derivatives[i-1] * (dualMat ^ i) / ExtendedDual::factorial(i);
+    for (int i = 1; i < order; i++) {
+        result += derivatives[i - 1] * (dualMat ^ i) / ExtendedDual::factorial(i);
     }
 
     return result;
 }
 
-ExtendedDualNum ExtendedDual::acos(const ExtendedDualNum& num){
-    
+ExtendedDualNum ExtendedDual::acos(const ExtendedDualNum& num) {
+
     int order = num.getSize();
 
     double real = num.getNum();
 
     ExtendedDualNum dualMat = num.getDualMatrix();
 
-    vector<double> derivatives = ExtendedDual::partialDerivative(derivativeOfASin, real, order-1);
+    vector<double> derivatives = ExtendedDual::partialDerivative(derivativeOfASin, real, order - 1);
 
     ExtendedDualNum result(std::acos(real), order);
 
-    for (int i = 1; i < order; i++){
-        result += (-1) * derivatives[i-1] * (dualMat ^ i) / ExtendedDual::factorial(i);
+    for (int i = 1; i < order; i++) {
+        result += (-1) * derivatives[i - 1] * (dualMat ^ i) / ExtendedDual::factorial(i);
     }
 
     return result;
 }
 
-ExtendedDualNum ExtendedDual::atan(const ExtendedDualNum& num){
-    
+ExtendedDualNum ExtendedDual::atan(const ExtendedDualNum& num) {
+
     int order = num.getSize();
 
     double real = num.getNum();
 
     ExtendedDualNum dualMat = num.getDualMatrix();
 
-    vector<double> derivatives = ExtendedDual::partialDerivative(derivativeOfATan, real, order-1);
+    vector<double> derivatives = ExtendedDual::partialDerivative(derivativeOfATan, real, order - 1);
 
     ExtendedDualNum result(std::atan(real), order);
 
-    for (int i = 1; i < order; i++){
-        result += derivatives[i-1] * (dualMat ^ i) / ExtendedDual::factorial(i);
+    for (int i = 1; i < order; i++) {
+        result += derivatives[i - 1] * (dualMat ^ i) / ExtendedDual::factorial(i);
     }
 
     return result;
 }
 
-ExtendedDualNum ExtendedDual::derivativeOfASin(ExtendedDualNum num){
+ExtendedDualNum ExtendedDual::derivativeOfASin(ExtendedDualNum num) {
     return (1 / ((1 - (num ^ 2)) ^ (0.5)));
 }
 
-ExtendedDualNum ExtendedDual::derivativeOfATan(ExtendedDualNum num){
+ExtendedDualNum ExtendedDual::derivativeOfATan(ExtendedDualNum num) {
     return (1 / (1 + (num ^ 2)));
 }
 
@@ -376,6 +376,87 @@ vector<double> ExtendedDual::partialDerivative(ExtendedDualNum(*func)(ExtendedDu
     }
 
     return result;
+}
+
+ExtendedDualNum ExtendedDual::evaluatePartialDerivative(ExtendedDualNum(*func)(ExtendedDualNum), long double at) {
+    ExtendedDualNum x(at);
+
+    x.setDual(1);
+
+    return ((*func)(x));
+}
+
+
+
+vector<double> ExtendedDual::gradient(VectorFunctionPointer func, vector<ExtendedDualNum> at, coordinate_system system) {
+    vector<vector<double>> result(at.size());
+
+    if (system == coordinate_system::cartesian) {
+        for (int i = 0; i < at.size(); i++) {
+
+            result[i] = ExtendedDual::partialDerivative(func, at, i);
+
+        }
+    }
+
+    return vector{ result[0][1], result[1][1], result[2][1] };
+}
+
+double ExtendedDual::laplacian(VectorFunctionPointer func, vector<ExtendedDualNum> at, coordinate_system system) {
+    double result = 0;
+
+    if (system == coordinate_system::cartesian) {
+        for (int i = 0; i < at.size(); i++) {
+
+            result += ExtendedDual::partialDerivative(func, at, i)[2];
+
+        }
+    }
+
+    return result;
+}
+
+
+
+vector<vector<double>> ExtendedDual::jacobian(vector<ExtendedDual::VectorFunctionPointer> functions, vector<ExtendedDualNum> at) {
+    vector<vector<double>> result;
+
+    for (int i = 0; i < functions.size(); i++) {
+        vector<double> row;
+        for (int j = 0; j < at.size(); j++) {
+            row.push_back(ExtendedDual::partialDerivative(functions[i], at, j)[1]);
+        }
+
+        result.push_back(row);
+    }
+
+    return result;
+}
+
+double ExtendedDual::solveUsingNewtonRaphson(ExtendedDualNum(*func)(ExtendedDualNum), double initialGuess, int max_no_of_iterations) {
+    long double threshold = 0.00001;
+
+    double x = initialGuess;
+
+    ExtendedDualNum result(0);
+
+    int iterations = 0;
+
+    do {
+        result = evaluatePartialDerivative(func, x);
+
+        x = x - (result.getNum() / result.getDualMatrix()[0][1]);
+
+        iterations++;
+
+        if (iterations > max_no_of_iterations) {
+            std::cout << "\nCouldn't converge within given no of iterations." << std::endl;
+            break;
+        }
+
+    } while ((result.getNum() > threshold) || (result.getNum() < -threshold));
+
+    return x;
 }
 
 
@@ -606,10 +687,10 @@ void ExtendedDualNum::operator -= (const double num) {
 
 ExtendedDualNum operator - (const double num, const ExtendedDualNum& another) {
 
-    return (ExtendedDualNum(num, another.getSize()) -  another);
+    return (ExtendedDualNum(num, another.getSize()) - another);
 }
 
-ExtendedDualNum ExtendedDualNum::operator - (){
+ExtendedDualNum ExtendedDualNum::operator - () {
     vector<double> elems(order, 0);
 
     for (int i = 0; i < order; i++) {
@@ -619,7 +700,7 @@ ExtendedDualNum ExtendedDualNum::operator - (){
     return ExtendedDual::matrixFiller(elems);
 }
 
-ExtendedDualNum ExtendedDualNum::operator + (){
+ExtendedDualNum ExtendedDualNum::operator + () {
     return *this;
 }
 
@@ -808,7 +889,7 @@ double ExtendedDualNum::getPartialDerivative(int i) const {
     return data[0][i] * ExtendedDual::factorial(i);
 }
 
-std::ostream& operator << (std::ostream &os, const ExtendedDualNum& num){
+std::ostream& operator << (std::ostream& os, const ExtendedDualNum& num) {
     num.displayData();
 
     return os;
