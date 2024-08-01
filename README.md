@@ -351,7 +351,32 @@ Also make use you have SFML installed in your PC and it's path setup as specifie
 To use the exemplary applications that we have included in our repository / project:
 
 - you need to make sure that you install SFML-2.6.1 or higher ->  https://www.sfml-dev.org/download/sfml/2.6.1
-- then make sure to set the path for the  
+- then make sure to set the path for SFML in the make file as shown below (replace with <> parts with your paths):
+
+```MakeFile
+# Compiler
+CXX = g++
+
+# Compiler flags
+CXXFLAGS = -g -I< Complete path to -> SFML-2.6.1/include >
+
+# Linker flags
+LDFLAGS = -L<Complete path to -> SFML-2.6.1/lib > -lsfml-graphics -lsfml-window -lsfml-system
+
+
+.... the rest is the same as the make file as provided ....
+```
+- Then to run the program to compare automatic differentiation with numerical differentiation:
+run `make run_DER` in terminal in the location of the project folder.
+
+- Then to run the program that showcases evaluation of different mathematical operations:
+run `make run_GRAD` in terminal in the location of the project folder.
+
+- Then to run the program that showcases that ANN model can be trained for the XOR Dataset using this library:
+run `make run_XOR` in terminal in the location of the project folder.
+
+- Then to run the program that showcases that ANN model can be trained for regression using this library:
+run `make run_REG` in terminal in the location of the project folder.
 
 Happy Hacking !
 
