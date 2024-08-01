@@ -7,6 +7,7 @@ This project provides a C++ library for dual numbers, including both standard an
 - Usage
 - DualNum Class
 - Standard Functions
+- ExtendedDualNum Class
 
 ## Installation
 To use this library, include the header and source files in your C++ project. Make sure your build system compiles the dual.cpp file if it uses DualNum class and the extendedDual.cpp file if it uses the ExtendedDualNum class.
@@ -128,4 +129,97 @@ int main() {
 - `vector<DualNum> gradient(DualNum(*func)(vector<DualNum>), vector<DualNum> at, coordinate_system system = coordinate_system::cartesian);`
 - `double solveUsingNewtonRaphson(DualNum(*func)(DualNum), double initialGuess = 1, int max_no_of_iterations = 10000);`
 
+### ExtendedDualNum Class
 
+The ExtendedDualNum class is designed for advanced numerical computation, particularly focusing on dual numbers and extended dual numbers. It uses dual numbers in it's matrix form and it can be used to calculate the derivative upto the nth term.
+
+#### Constructors
+- `ExtendedDualNum(double num, int orderOfMat = 2);`
+
+    Initializes the dual number with a given real part and matrix order, the order of the matrix is the number of terms you want to have in your dual number.
+
+- `ExtendedDualNum(vector<vector<double>> dataMatrix);`
+
+    Initializes using a data matrix.
+
+- `ExtendedDualNum(const ExtendedDualNum& another);`
+
+    Copy constructor.
+
+```cpp
+#include<iostream>
+#include<vector>
+#include "extendedDual.h"
+
+using std::cout;
+using std::endl;
+using namespace ExtendedDual;
+
+// Function to demonstrate usage
+ExtendedDualNum sampleFunction(vector<ExtendedDualNum> params) {
+    return params[0] * params[0] + params[1] * params[1];
+}
+
+int main() {
+    // Initialize two ExtendedDualNum objects with a value and matrix size (order)
+    ExtendedDualNum a(3.0, 2);
+    ExtendedDualNum b(4.0, 2);
+
+    // Perform arithmetic operations
+    ExtendedDualNum sum = a + b;
+    ExtendedDualNum difference = a - b;
+    ExtendedDualNum product = a * b;
+    ExtendedDualNum quotient = a / b;
+
+    // Display results of arithmetic operations
+    cout << "Sum: " << sum << endl;
+    cout << "Difference: " << difference << endl;
+    cout << "Product: " << product << endl;
+    cout << "Quotient: " << quotient << endl;
+
+    // Compute exponential, logarithm, and trigonometric functions
+    ExtendedDualNum exponential = exp(a);
+    ExtendedDualNum logarithm = log(a);
+    ExtendedDualNum sine = sin(a);
+    ExtendedDualNum cosine = cos(a);
+    ExtendedDualNum tangent = tan(a);
+
+    // Display results of functions
+    cout << "Exponential: " << exponential << endl;
+    cout << "Logarithm: " << logarithm << endl;
+    cout << "Sine: " << sine << endl;
+    cout << "Cosine: " << cosine << endl;
+    cout << "Tangent: " << tangent << endl;
+
+    return 0;
+} 
+```
+
+#### Public Methods
+- `vector<vector<double>> getData() const; `
+
+    Returns the data matrix of the dual number.
+
+- `double getNum() const;`
+
+    Returns the real part of the dual number.
+
+- `int getSize() const;`
+
+Returns the size of the data matrix.
+
+- `vector<vector<double>> getDualMatrix() const;`
+
+Returns the matrix part of the dual number.
+
+- `void setData(vector<vector<double>> newData);`
+
+Sets the data matrix.
+
+- `void setDual(double dual = 1);`
+
+Sets the dual part of the number.
+
+- `void displayData() const;`
+
+Displays the dual number data.
