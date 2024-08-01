@@ -79,10 +79,20 @@ The library includes several standard functions that operate on dual numbers, su
 - `Dual::binary_crossentropy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);`
 - `Dual::categorical_crossentropy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);`
 - `Dual::accuracy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat, const double threshold = 0.5);`
-Extra Functions
+
+*The above functions work exactly as the normally understood versions of it, but just compatible with dual numbers.*
+
+#### Extra Functions
 Additional functionalities include calculating partial derivatives, gradients, and solving equations using the Newton-Raphson method:
 
 - `partialDerivative(DualNum(*func)(vector<DualNum>), vector<DualNum> params, int paramIndex = 0, long double at = 1);`
+    This function returns the first derivative of the function passes evaluated at the value specified in 'at' parameter.
+
 - `evaluatePartialDerivative(DualNum(*func)(DualNum), long double at = 1);`
+
+    This function simply evaluates the given function using dual numbers set up for 1st derivative and returns the entire result as it is.
+
 - `vector<DualNum> gradient(DualNum(*func)(vector<DualNum>), vector<DualNum> at, coordinate_system system = coordinate_system::cartesian);`
 - `double solveUsingNewtonRaphson(DualNum(*func)(DualNum), double initialGuess = 1, int max_no_of_iterations = 10000);`
+
+
