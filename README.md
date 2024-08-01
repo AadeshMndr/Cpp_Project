@@ -146,6 +146,8 @@ The ExtendedDualNum class is designed for advanced numerical computation, partic
 
     Copy constructor.
 
+
+An example code of how we can use the ExtendedDualNum class.
 ```cpp
 #include<iostream>
 #include<vector>
@@ -206,20 +208,44 @@ int main() {
 
 - `int getSize() const;`
 
-Returns the size of the data matrix.
+    Returns the size of the data matrix.
 
 - `vector<vector<double>> getDualMatrix() const;`
 
-Returns the matrix part of the dual number.
+    Returns the matrix part of the dual number.
 
 - `void setData(vector<vector<double>> newData);`
 
-Sets the data matrix.
+    Sets the data matrix.
 
 - `void setDual(double dual = 1);`
 
-Sets the dual part of the number.
+    Sets the dual part of the number.
 
 - `void displayData() const;`
 
-Displays the dual number data.
+    Displays the dual number data.
+
+#### Operator Overloads
+The ExtendedDualNum class supports standard arithmetic operations (+, -, *, /, ^) and comparison operators (==, >, <, >=, <=) for dual numbers and long double scalars.
+
+#### Standard Functions
+The library includes several standard functions that operate on dual numbers, exactly as the ones described for the DualNum class, the only difference being that now we have to use the ExtendedDual namespace instead of the Dual namespace for the standard functions.
+
+
+#### Extra Functions
+- `vector<double> partialDerivative(ExtendedDualNum (*func)(vector<ExtendedDualNum>);`
+- `vector<ExtendedDualNum> params, int paramIndex = 0);`
+
+    Computes the partial derivative of a vector function.
+
+- `vector<double> partialDerivative(ExtendedDualNum (*func)(ExtendedDualNum), double at = 1, int order = 3);`
+
+    Computes the partial derivative of a function.
+
+- `ExtendedDualNum evaluatePartialDerivative(ExtendedDualNum(*func)(ExtendedDualNum), long double at = 1);`
+
+    Evaluates the partial derivative at a given point.
+
+    
+
