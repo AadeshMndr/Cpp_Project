@@ -247,5 +247,96 @@ The library includes several standard functions that operate on dual numbers, ex
 
     Evaluates the partial derivative at a given point.
 
+An example on how we can use the partialDerivative functions:
+```cpp
+#include<iostream>
+#include<iomanip>
+#include"extendedDual.h"
+#include<limits>
+
+ExtendedDualNum someFunc(ExtendedDualNum x){
+    return (ExtendedDual::log(x, x/9)) * (x^0) / ((x ^ (-1)) / 99);
+}
+
+int main() {
+
+    std::cout << std::setprecision(10);
+
+    int orderOfExtendedDualNumber = 9; //upto which derivative
+
+    //You get an array (vector) that has the terms of the dual number
+    vector<double> answers = ExtendedDual::partialDerivative(someFunc, 0.5, orderOfExtendedDualNumber);
+
+    for (int i = 0; i < orderOfExtendedDualNumber; i++){
+        std::cout << "\nThe " << i << " order derivative is: " << answers[i] << std::endl;
+    }
+
+    return 0;
+}
+```
+
+#### Advanced Calculus
+- `vector<double> gradient(VectorFunctionPointer, vector<ExtendedDualNum> at, coordinate_system system = coordinate_system::cartesian);`
+    Computes the gradient of a function.
+- `double laplacian(VectorFunctionPointer, vector<ExtendedDualNum> at, coordinate_system system = coordinate_system::cartesian);`
+    Computes the Laplacian of a function.
+- `vector<vector<double>> jacobian(vectorExtendedDual::VectorFunctionPointer, vector<ExtendedDualNum> at);`
+    Computes the Jacobian matrix.
+- `double solveUsingNewtonRaphson(ExtendedDualNum(*func)(ExtendedDualNum), double initialGuess = 1, int max_no_of_iterations = 10000);`
+    Solves equations using the Newton-Raphson method.
+
+An example of using these functions:
+```cpp
+#include<iostream>
+#include "extendedDual.h"
+
+ExtendedDualNum potential(vector<ExtendedDualNum> params){
+    return (((params[0])^2) + params[1] + params[2]);
+}
+
+ExtendedDualNum fx(vector<ExtendedDualNum> params){
+    return (2 * params[0] + params[1]);
+}
+
+ExtendedDualNum fy(vector<ExtendedDualNum> params){
+    return (3 * params[0] + params[1]);
+}
+
+ExtendedDualNum someFunction(ExtendedDualNum x){
+    return ((x ^ 2) + 5 * x - 50);
+}
+
+int main(){
+    vector<double> gradientValue = ExtendedDual::gradient(potential, {1, 1, 1});
+
+    std::cout << "\n\nf(x, y, z) = x^2 + y + z   at  (1, 1, 1)" << std::endl;
+    std::cout << "\nThe gradient is: " << "(" << gradientValue[0] << ", " << gradientValue[1] << ", " << gradientValue[2] << ")" << std::endl;
+
+    std::cout << "\nThe laplacian is: " << ExtendedDual::laplacian(potential, {ExtendedDualNum(1, 3), ExtendedDualNum(1, 3), ExtendedDualNum(1, 3)}) << std::endl;
+
+    vector<vector<double>> jacobianMatrix = ExtendedDual::jacobian({fx, fy}, {1, 1});
+
+    std::cout << "\n\nf(x, y) = (2x + y, 3x + y)   at  (1, 1)" << std::endl;
+    std::cout << "\nThe Jacobian Matrix is: \n\n";
+    for (int i = 0; i < jacobianMatrix.size(); i++){
+        for (int j = 0; j < jacobianMatrix[0].size(); j++){
+            std::cout << jacobianMatrix[i][j] << "\t";
+        }
+        std::cout << "\n\n";
+    }
+
+    double answer = ExtendedDual::solveUsingNewtonRaphson(someFunction);
+
+
+    std::cout << "\nequation: x^2 + 5x - 50 = 0" << std::endl;
+    std::cout << "\nThus the solution of the equation is " << answer << "\n\n" << std::endl;
     
+    return 0;
+}   
+```
+
+Using this library we can make differentiation logic for entire machine learning models as well, for demonstration purposes we have included an ANN model made using this library in this same repository, to test it, make sure you use a compatible version of the compiler as specified in the Usage section. 
+Also make use you have SFML installed in your PC and it's path setup as specified in the make file, to view graphs, or else just comment out the parts that is related to generation of a graph. 
+
+
 
