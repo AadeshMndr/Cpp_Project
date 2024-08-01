@@ -6,11 +6,12 @@
 #include<fstream>
 
 using namespace std;
-string ccode=R"(#include<iostream>
+string ccode=R"(
+#include<iostream>
 #include<iomanip>
 #include<limits>
-#include "../extendedDual.h" // Include the header file that defines ExtendedDualNum
-
+#include "../Dual_Library/extendedDual.h"
+using namespace ExtendedDual;
 ExtendedDualNum someFunc(ExtendedDualNum);
 double value_of_x();
 int main() {
@@ -37,7 +38,7 @@ void get_derivative(string s, double x) {
     outfile.close();
 
     // Compiling the code using g++
-    system("g++ runtime_compile.cpp ../extendedDual.cpp -o runtime_compile.out -std=c++11");
+    system("g++ runtime_compile.cpp ../Dual_Library/extendedDual.cpp -o runtime_compile.out -std=c++11");
 
     // Executing the compiled program and redirecting output to output.txt
     system("./runtime_compile.out > output.txt 2>&1");
