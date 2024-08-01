@@ -91,7 +91,7 @@ Additional functionalities include calculating partial derivatives, gradients, a
 
 - `partialDerivative(DualNum(*func)(vector<DualNum>), vector<DualNum> params, int paramIndex = 0, long double at = 1);`
     
-    This function returns the first derivative of the function passes evaluated at the value specified in 'at' parameter.
+    This function returns the first derivative of the function passed, evaluated at the value specified in 'at' parameter.
 
 ```cpp
 #include <iostream>
