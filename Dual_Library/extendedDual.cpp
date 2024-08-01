@@ -399,7 +399,7 @@ vector<double> ExtendedDual::gradient(VectorFunctionPointer func, vector<Extende
         }
     }
 
-    return vector{ result[0][1], result[1][1], result[2][1] };
+    return vector<double>{ result[0][1], result[1][1], result[2][1] };
 }
 
 double ExtendedDual::laplacian(VectorFunctionPointer func, vector<ExtendedDualNum> at, coordinate_system system) {
