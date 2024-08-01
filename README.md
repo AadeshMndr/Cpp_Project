@@ -277,12 +277,19 @@ int main() {
 
 #### Advanced Calculus
 - `vector<double> gradient(VectorFunctionPointer, vector<ExtendedDualNum> at, coordinate_system system = coordinate_system::cartesian);`
+
     Computes the gradient of a function.
+
 - `double laplacian(VectorFunctionPointer, vector<ExtendedDualNum> at, coordinate_system system = coordinate_system::cartesian);`
+
     Computes the Laplacian of a function.
+
 - `vector<vector<double>> jacobian(vectorExtendedDual::VectorFunctionPointer, vector<ExtendedDualNum> at);`
+
     Computes the Jacobian matrix.
+
 - `double solveUsingNewtonRaphson(ExtendedDualNum(*func)(ExtendedDualNum), double initialGuess = 1, int max_no_of_iterations = 10000);`
+
     Solves equations using the Newton-Raphson method.
 
 An example of using these functions:
