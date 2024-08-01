@@ -345,5 +345,6 @@ int main(){
 Using this library we can make differentiation logic for entire machine learning models as well, for demonstration purposes we have included an ANN model made using this library in this same repository, to test it, make sure you use a compatible version of the compiler as specified in the Usage section. 
 Also make use you have SFML installed in your PC and it's path setup as specified in the make file, to view graphs, or else just comment out the parts that is related to generation of a graph. 
 
+Happy Hacking !
 
 
