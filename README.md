@@ -11,6 +11,8 @@ This project provides a C++ library for dual numbers, including both standard an
 ## Installation
 To use this library, include the header and source files in your C++ project. Make sure your build system compiles the dual.cpp file if it uses DualNum class and the extendedDual.cpp file if it uses the ExtendedDualNum class.
 
+This library internally uses threads, which is compatible with gcc version 11 and after, so make sure you have a compiler that is equivalent to gcc version 11 or newer.
+
 ## Usage
 Here is a basic example of how to use the DualNum class:
 
@@ -86,7 +88,38 @@ The library includes several standard functions that operate on dual numbers, su
 Additional functionalities include calculating partial derivatives, gradients, and solving equations using the Newton-Raphson method:
 
 - `partialDerivative(DualNum(*func)(vector<DualNum>), vector<DualNum> params, int paramIndex = 0, long double at = 1);`
+    
     This function returns the first derivative of the function passes evaluated at the value specified in 'at' parameter.
+
+```cpp
+#include <iostream>
+#include <vector>
+#include "dual.h"
+
+// Define the function f(x, y) = x^2 + 3xy + y^2 using DualNum
+DualNum function(std::vector<DualNum> params) {
+    DualNum x = params[0];
+    DualNum y = params[1];
+    return (x * x) + (3 * x * y) + (y * y);
+}
+
+int main() {
+    // Initialize the point (x, y) = (1, 2)
+    std::vector<DualNum> params = { DualNum(1.0, 0.0), DualNum(2.0, 0.0) };
+
+    // Calculate the partial derivative with respect to x (index 0) at the point (1, 2)
+    long double partialDeriv_x = partialDerivative(function, params, 0);
+
+    std::cout << "Partial derivative with respect to x at (1, 2): " << partialDeriv_x << std::endl;
+
+    // Calculate the partial derivative with respect to y (index 1) at the point (1, 2)
+    long double partialDeriv_y = partialDerivative(function, params, 1);
+
+    std::cout << "Partial derivative with respect to y at (1, 2): " << partialDeriv_y << std::endl;
+
+    return 0;
+}
+```
 
 - `evaluatePartialDerivative(DualNum(*func)(DualNum), long double at = 1);`
 
