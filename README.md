@@ -351,7 +351,7 @@ Also make use you have SFML installed in your PC and it's path setup as specifie
 To use the exemplary applications that we have included in our repository / project:
 
 - you need to make sure that you install SFML-2.6.1 or higher ->  https://www.sfml-dev.org/download/sfml/2.6.1
-- then make sure to set the path for SFML in the make file as shown below (replace with <> parts with your paths):
+- then make sure to set the path for SFML in the make file as shown below (replace <> parts with your paths):
 
 ```MakeFile
 # Compiler
