@@ -8,6 +8,7 @@ This project provides a C++ library for dual numbers, including both standard an
 - DualNum Class
 - Standard Functions
 - ExtendedDualNum Class
+- Compiling instructions
 
 ## Installation
 To use this library, include the header and source files present inside the Dual_Library folder inside your C++ project. Make sure your build system compiles the dual.cpp file if it uses DualNum class and the extendedDual.cpp file if it uses the ExtendedDualNum class.
@@ -344,6 +345,13 @@ int main(){
 
 Using this library we can make differentiation logic for entire machine learning models as well, for demonstration purposes we have included an ANN model made using this library in this same repository, to test it, make sure you use a compatible version of the compiler as specified in the Usage section. 
 Also make use you have SFML installed in your PC and it's path setup as specified in the make file, to view graphs, or else just comment out the parts that is related to generation of a graph. 
+
+## Compiling Instructions
+
+To use the exemplary applications that we have included in our repository / project:
+
+- you need to make sure that you install SFML-2.6.1 or higher ->  https://www.sfml-dev.org/download/sfml/2.6.1
+- then make sure to set the path for the  
 
 Happy Hacking !
 
