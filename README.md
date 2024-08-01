@@ -10,7 +10,7 @@ This project provides a C++ library for dual numbers, including both standard an
 - ExtendedDualNum Class
 
 ## Installation
-To use this library, include the header and source files in your C++ project. Make sure your build system compiles the dual.cpp file if it uses DualNum class and the extendedDual.cpp file if it uses the ExtendedDualNum class.
+To use this library, include the header and source files present inside the Dual_Library folder inside your C++ project. Make sure your build system compiles the dual.cpp file if it uses DualNum class and the extendedDual.cpp file if it uses the ExtendedDualNum class.
 
 This library internally uses threads, which is compatible with gcc version 11 and after, so make sure you have a compiler that is equivalent to gcc version 11 or newer.
 
