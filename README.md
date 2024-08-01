@@ -65,24 +65,24 @@ The DualNum class represents dual numbers with a real part and a dual part.
 #### Operator Overloads
 The DualNum class supports standard arithmetic operations (+, -, *, /, ^) and comparison operators (==, >, <, >=, <=) for dual numbers and long double scalars.
 
-Standard Functions
+#### Standard Functions
 The library includes several standard functions that operate on dual numbers, such as:
 
-Dual::pow(const DualNum& x, const DualNum& y);
-Dual::exp(const DualNum& x);
-Dual::log(const DualNum& x);
-Dual::relu(const DualNum& x);
-Dual::tanh(const DualNum& x);
-Dual::sigmoid(const DualNum& x);
-Dual::softmax(const vector<DualNum>& X, int index, DualNum sum = DualNum(0, 0));
-Dual::mse(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);
-Dual::binary_crossentropy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);
-Dual::categorical_crossentropy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);
-Dual::accuracy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat, const double threshold = 0.5);
+- `Dual::pow(const DualNum& x, const DualNum& y);`
+- `Dual::exp(const DualNum& x);`
+- `Dual::log(const DualNum& x);`
+- `Dual::relu(const DualNum& x);`
+- `Dual::tanh(const DualNum& x);`
+- `Dual::sigmoid(const DualNum& x);`
+- `Dual::softmax(const vector<DualNum>& X, int index, DualNum sum = DualNum(0, 0));`
+- `Dual::mse(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);`
+- `Dual::binary_crossentropy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);`
+- `Dual::categorical_crossentropy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat);`
+- `Dual::accuracy(const vector<DualNum>& y_train, const vector<vector<DualNum>>& yhat, const double threshold = 0.5);`
 Extra Functions
 Additional functionalities include calculating partial derivatives, gradients, and solving equations using the Newton-Raphson method:
 
-partialDerivative(DualNum(*func)(vector<DualNum>), vector<DualNum> params, int paramIndex = 0, long double at = 1);
-evaluatePartialDerivative(DualNum(*func)(DualNum), long double at = 1);
-vector<DualNum> gradient(DualNum(*func)(vector<DualNum>), vector<DualNum> at, coordinate_system system = coordinate_system::cartesian);
-double solveUsingNewtonRaphson(DualNum(*func)(DualNum), double initialGuess = 1, int max_no_of_iterations = 10000);
+- `partialDerivative(DualNum(*func)(vector<DualNum>), vector<DualNum> params, int paramIndex = 0, long double at = 1);`
+- `evaluatePartialDerivative(DualNum(*func)(DualNum), long double at = 1);`
+- `vector<DualNum> gradient(DualNum(*func)(vector<DualNum>), vector<DualNum> at, coordinate_system system = coordinate_system::cartesian);`
+- `double solveUsingNewtonRaphson(DualNum(*func)(DualNum), double initialGuess = 1, int max_no_of_iterations = 10000);`
