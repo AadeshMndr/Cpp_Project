@@ -364,7 +364,7 @@ CXXFLAGS = -g -I< Complete path to -> SFML-2.6.1/include >
 LDFLAGS = -L<Complete path to -> SFML-2.6.1/lib > -lsfml-graphics -lsfml-window -lsfml-system
 
 
-.... the rest is the same as the make file as provided ....
+.... the rest is the same as the make file provided in the repository / project ....
 ```
 - Then to run the program to compare automatic differentiation with numerical differentiation:
 run `make run_DER` in terminal in the location of the project folder.
@@ -377,6 +377,8 @@ run `make run_XOR` in terminal in the location of the project folder.
 
 - Then to run the program that showcases that ANN model can be trained for regression using this library:
 run `make run_REG` in terminal in the location of the project folder.
+
+- SFML library is only used to display the graphs that we get when training the ANN Model, Thus, if you don't want to bother with installing SFML and don't need graphs, you may remove the parts of the code that renders the graph from the given programs (if so remove the flags specific to SFML from the MakeFile as well), and follow the rest of the instructions as it is.
 
 Happy Hacking !
 
